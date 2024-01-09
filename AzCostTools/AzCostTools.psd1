@@ -107,7 +107,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'https://github.com/markwragg/PowerShell-AzCostTools/blob/master/README.md'
+        ReleaseNotes = 'https://github.com/markwragg/PowerShell-AzCostTools/blob/main/README.md'
 
         # Prerelease string of this module
         # Prerelease = ''

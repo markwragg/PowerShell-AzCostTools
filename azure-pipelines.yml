@@ -12,8 +12,8 @@ trigger:
   # What branches will trigger a build?
   branches:
     include:
-      # Any Pull Request merging into the master branch
-      - master
+      # Any Pull Request merging into the main branch
+      - main
 
 steps:
   - checkout: self
