@@ -31,50 +31,10 @@ function Get-MonthCost {
         Write-Warning 'PSparklines module not installed. Sparklines will not be generated. To fix execute: Install-Module PSparkines'
     }
 
-    function Get-DailyCost ($Consumption) {
-
-        $Consumption | Group-Object UsageStart | ForEach-Object {
-            [pscustomobject]@{ 
-                Date = (Get-Date $_.Name)
-                Cost = ($_.Group | Measure-Object PreTaxCost -Sum).Sum 
-            }
-        }
-    }
-
-    function Get-DailyCostChange ($DailyCost, $PrevDailyCost) {
-
-        foreach ($DCost in $DailyCost) {
-
-            $PrevDate = $PrevDailyCost | where-Object { $_.Date.AddMonths(1) -eq $DCost.Date }
-            $PrevCost = ($PrevDate.Cost | Measure-Object -Sum).Sum
-
-            if (-not $PrevCost) { $PrevCost = 0 }
-
-            [pscustomobject]@{ 
-                Date       = $DCost.Date
-                PrevDate   = $PrevDate.Date
-                Cost       = $DCost.Cost
-                PrevCost   = $PrevCost
-                CostChange = ($DCost.Cost - $PrevCost)
-            }
-        }
-    }
-
-    function Get-ServiceCost ($Consumption) {
-
-        $Consumption | Group-Object ConsumedService | ForEach-Object {
-            [pscustomobject]@{
-                Service = $_.Name
-                Cost    = ($_.Group | Measure-Object PreTaxCost -Sum).Sum
-            }
-        }
-    }
-
     if (-not $SubscriptionName) {
         $SubscriptionName = (Get-AzSubscription).Name
     }
 
-    
     foreach ($Name in $SubscriptionName) {
 
         $Consumption = $null
@@ -89,7 +49,7 @@ function Get-MonthCost {
             $PrevBillingPeriod = $PrevBillingDate.ToString('yyyyMM')
             
             try {
-                Select-AzSubscription -Subscription $Name | Out-Null
+                Set-AzContext -Subscription $Name | Out-Null
                 
                 $Consumption = if ($PrevConsumption) {
                     $PrevConsumption

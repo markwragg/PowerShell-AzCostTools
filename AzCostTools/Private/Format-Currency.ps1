@@ -1,11 +1,10 @@
-function Format-Currency {
+﻿function Format-Currency {
     <#
     .SYNOPSIS
         Helper function returns the currency symbol for a specified Azure supported currency.
     #>
     param(
         [string]
-        [ValidateLength(3)]
         [parameter(Mandatory)]
         $Currency,
 
