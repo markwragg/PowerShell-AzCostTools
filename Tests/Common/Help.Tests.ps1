@@ -6,9 +6,13 @@ BeforeDiscovery {
         $commonParams = @(
             'Debug', 'ErrorAction', 'ErrorVariable', 'InformationAction', 'InformationVariable',
             'OutBuffer', 'OutVariable', 'PipelineVariable', 'Verbose', 'WarningAction',
-            'WarningVariable', 'Confirm', 'Whatif'
+            'WarningVariable', 'Confirm', 'Whatif', 'ProgressAction'
         )
         $params | Where-Object { $_.Name -notin $commonParams } | Sort-Object -Property Name -Unique
+    }
+
+    if (-not $env:BHProjectName) {
+        $env:BHProjectName = (Get-ChildItem $PSScriptRoot\..\..\*.psm1 -Recurse).BaseName
     }
 
     # Get module commands

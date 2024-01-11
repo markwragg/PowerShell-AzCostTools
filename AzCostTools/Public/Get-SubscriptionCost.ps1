@@ -1,7 +1,12 @@
 function Get-SubscriptionCost {
     <#
     .SYNOPSIS
-        Retrieves the cost for a specified month for one or more subscriptions and compares them to the month prior.
+        Retrieves the Azure costs for one or more billing months for one or more subscriptions.
+
+    .DESCRIPTION
+        Invokes the Get-AzConsumptionUsageDetail cmdlet against one or more subscriptions to return billing data for a specified number of months.
+        If you are interested to see how costs have changed since the previous mont use the -ComparePrevious switch to return additional properties
+        that contain the cost data for the previous month and properties that calculate the cost difference.
 
     .PARAMETER SubscriptionName
         The name or name/s of the Subscriptions to query. If not specified all subscriptions available in the current context will be used.
@@ -24,17 +29,38 @@ function Get-SubscriptionCost {
     .EXAMPLE
         Get-SubscriptionCost
 
+        Description
+        -----------
+        Returns costs for the current billing month for all subscriptions in the current Azure context.
+
     .EXAMPLE
         Get-SubscriptionCost -SubscriptionName 'MySubscriptionA'
+
+        Description
+        -----------
+        Returns costs for the current billing month for the specified subscription name.
 
     .EXAMPLE
         Get-SubscriptionCost -SubscriptionName 'MySubscriptionA','MySubscriptionB'
 
-    .EXAMPLE
-        Get-SubscriptionCost -BillingMonth 01/2023 -PreviousMonths 3
+        Description
+        -----------
+        Returns costs for the current billing month for the specified subscription names.
 
     .EXAMPLE
-        Get-SubscriptionCost -BillingMonth 01/2023 -PreviousMonths3 -ComparePrevious
+        Get-SubscriptionCost -BillingMonth 01/2024 -PreviousMonths 3
+
+        Description
+        -----------
+        Returns costs from October 2023 to January 2024 for all subscriptions in the current Azure context.
+
+    .EXAMPLE
+        Get-SubscriptionCost -BillingMonth 01/2024 -PreviousMonths 3 -ComparePrevious
+
+        Description
+        -----------
+        Returns costs from October 2023 to January 2024 for all subscriptions in the current Azure context and includes properties
+        for comparing each month with the one prior.
     #>
     [CmdletBinding()]
     param(
@@ -111,7 +137,7 @@ function Get-SubscriptionCost {
                         }
                     }
 
-                    if (Test-PSparklines) {
+                    if (Test-PSparklinesModule) {
                         $CostSparkLine = Get-Sparkline $DailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
                     }
             
@@ -151,7 +177,7 @@ function Get-SubscriptionCost {
                         $ChangePct = $CostChange / $PrevCost
                         $DailyCostChange = Get-DailyCostChange -DailyCost $DailyCost -PrevDailyCost $PrevDailyCost
             
-                        if (Test-PSparklines) {
+                        if (Test-PSparklinesModule) {
                             $PrevCostSparkLine = Get-Sparkline $PrevDailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
                         }
 

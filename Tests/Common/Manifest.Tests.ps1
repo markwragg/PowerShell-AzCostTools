@@ -1,4 +1,16 @@
 BeforeAll {
+    if (-not $env:BHProjectName) {
+        $env:BHProjectName = (Get-ChildItem "$PSScriptRoot\..\..\*.psm1" -Recurse).BaseName
+    }
+
+    if (-not $env:BHPSModuleManifest) {
+        $env:BHPSModuleManifest = (Get-ChildItem "$PSScriptRoot\..\..\$env:BHProjectName\*.psd1" -Recurse).FullName
+    }
+
+    if (-not $env:BHProjectPath) {
+        $env:BHPSModuleManifest = (Get-ChildItem "$PSScriptRoot\..\..\" -Recurse).FullName
+    }
+
     $moduleName         = $env:BHProjectName
     $manifest           = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
     $outputManifestPath = Join-Path -Path $PSScriptRoot\..\..\$env:BHProjectName -Child "$($moduleName).psd1"

@@ -3,18 +3,30 @@ function Show-CostAnalysis {
     .SYNOPSIS
         Performs analysis of the data returned by Get-SubscriptionCost and generates charts and statistics.
 
+    .DESCRIPTION
+        Use with Get-SubscriptionCost to generate charts and statistics for Azure consumption data. Useful for
+        getting a quick view of the historical costs of one of more Azure subscriptions across one or more months
+        and to see the current Total costs, cost by day (as a chart), Top 15 most expensive service types, etc.
+
     .PARAMETER Cost
         The cost object returned by Get-SubscriptionCost
 
-    .PARAMETER SparkLikeSize
+    .PARAMETER SparkLineSize
         The row height of sparklines to generate (requires PSparkines module). Default: 3.
 
     .EXAMPLE
         Get-SubscriptionCost | Show-CostAnalysis
 
+        Description
+        -----------
+        Returns cost analysis information for the current billing month for all subscriptions in the current Azure context.
+
     .EXAMPLE
-        $Cost = Get-SubscriptionCost
         Show-CostAnalysis -Cost $Cost -SparkLineSize 5
+
+        Description
+        -----------
+        Returns cost analysis information for the cost data in $Cost with Sparkline charts that are 5 rows in height.
     #>
     param(
         [Parameter(ValueFromPipeline)]
@@ -63,7 +75,7 @@ function Show-CostAnalysis {
             Write-Host " $DatePeriodString"
             Write-Host
             
-            if (Test-PSparklines) {
+            if (Test-PSparklinesModule) {
 
                 $Emphasis = if ($Budget) {
                     @(
@@ -106,7 +118,7 @@ function Show-CostAnalysis {
 
             $TopServiceCost = $TotalCostPerService | Select-Object -First 15
 
-            if (Test-PSparklines) {
+            if (Test-PSparklinesModule) {
                 $TopCostSparkLine = $TopServiceCost.Cost | Get-Sparkline -NumLines $SparkLineSize
                 $TopCostSparkLine | ForEach-Object { $_.Color = $colorArray[$_.Col]; $_ } | Show-Sparkline
             }
@@ -151,7 +163,7 @@ function Show-CostAnalysis {
 
             $TopSubscriptionCost = $TotalCostPerSubscription | Select-Object -First 15
 
-            if (Test-PSparklines) {
+            if (Test-PSparklinesModule) {
                 $TopCostSparkLine = $TopSubscriptionCost.Cost | Get-Sparkline -NumLines $SparkLineSize
                 $TopCostSparkLine | ForEach-Object { $_.Color = $colorArray[$_.Col]; $_ } | Show-Sparkline
             }

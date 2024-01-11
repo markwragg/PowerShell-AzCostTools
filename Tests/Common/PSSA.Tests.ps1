@@ -5,6 +5,14 @@ Describe 'Testing against PSSA rules' {
     Context 'PSSA Standard Rules' {
 
         BeforeAll {
+            if (-not $env:BHProjectPath) {
+                $env:BHProjectPath = "$PSScriptRoot\..\..\"
+            }
+
+            if (-not $env:BHModulePath) {
+                $env:BHModulePath = (Get-ChildItem "$PSScriptRoot\..\..\*.psm1" -Recurse).Directory
+            }
+
             $ScriptAnalyzerSettingsPath = Join-Path -Path $env:BHProjectPath -ChildPath 'PSScriptAnalyzerSettings.psd1'
             $analysis = Invoke-ScriptAnalyzer -Path $env:BHModulePath -Recurse -Settings $ScriptAnalyzerSettingsPath
         }
