@@ -144,7 +144,6 @@ function Get-SubscriptionCost {
                     $CostObject = [ordered]@{
                         Name                       = $Name
                         BillingPeriod              = $BillingPeriod
-                        PrevBillingPeriod          = $PrevBillingPeriod
                         Currency                   = $Currency
                         Cost                       = [math]::Round($Cost)
                         DailyCost_SparkLine        = ($CostSparkLine -join "`n")
@@ -182,6 +181,7 @@ function Get-SubscriptionCost {
                         }
 
                         $ComparePreviousCostObject = [ordered]@{
+                            PrevBillingPeriod              = $PrevBillingPeriod
                             PrevCost                       = [math]::Round($PrevCost, 2)
                             PrevDailyCost_SparkLine        = ($PrevCostSparkLine -join "`n")
                             PrevDailyCost_Min              = [math]::Round(($PrevDailyCostCalc).Minimum)

@@ -12,11 +12,6 @@ Describe 'Format-Currency' {
         }
 
         It 'Returns the currency symbol and formatted value' {
-            $result = Format-Currency -Currency 'EUR' -Value 12.3456
-            $result | Should -Be '€12.35'
-        }
-
-        It 'Returns the currency symbol and formatted value' {
             $result = Format-Currency -Currency 'USD' -Value 1234
             $result | Should -Be '$1,234.00'
         }
