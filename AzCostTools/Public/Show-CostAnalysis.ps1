@@ -79,12 +79,14 @@ function Show-CostAnalysis {
 
                 $Emphasis = if ($Budget) {
                     @(
-                        (New-Emphasis -Color Red -Predicate { param($x) $x -gt $DailyBudget })
-                        (New-Emphasis -Color Green -Predicate { param($x) $x -le $DailyBudget })
+                        (New-Emphasis -Color 'Red' -Predicate { param($x) $x -gt $DailyBudget })
+                        (New-Emphasis -Color 'Green' -Predicate { param($x) $x -le $DailyBudget })
                     )
                 }
                 else {
-                    @()
+                    @(
+                        (New-Emphasis -Color 'White' -Predicate { $true })
+                    )
                 }
 
                 ($SubscriptionCost.DailyCost | Sort-Object { $_.Date -as [datetime] }).Cost | Get-Sparkline -NumLines $SparkLineSize -Emphasis $Emphasis | Show-Sparkline
@@ -134,6 +136,7 @@ function Show-CostAnalysis {
                 Write-Host ": " -NoNewline; Write-Host "$($TopService.Cost | Format-Currency -Currency $Currency)" -ForegroundColor $colorArray[$i]
 
                 $i++
+                if ($i -ge 15) { $i = 0 }
             }
         }
 
@@ -179,6 +182,7 @@ function Show-CostAnalysis {
                 Write-Host ": " -NoNewline; Write-Host "$($TopSubscription.Cost | Format-Currency -Currency $Currency)" -ForegroundColor $colorArray[$i]
 
                 $i++
+                if ($i -ge 15) { $i = 0 }
             }
 
             Write-Host
