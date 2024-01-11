@@ -1,15 +1,15 @@
 ﻿function Format-Currency {
     <#
     .SYNOPSIS
-        Helper function returns the currency symbol for a specified Azure supported currency.
+        Returns the currency symbol for a specified Azure supported currency.
     #>
     param(
-        [string]
         [parameter(Mandatory)]
+        [string]
         $Currency,
 
-        [parameter(ValueFromPipeline)]
-        [parameter(Mandatory)]
+        [parameter(ValueFromPipeline,Mandatory)]
+        [decimal]
         $Value
     )
 
