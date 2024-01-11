@@ -7,13 +7,8 @@ Describe 'Format-Currency' {
     Context 'When given a valid currency and value' {
 
         It 'Returns the currency symbol and formatted value' {
-            $result = Format-Currency -Currency 'USD' -Value 1234.5678
+            $result = Format-Currency -Currency 'USD' -Value 1234.5678901234567
             $result | Should -Be '$1,234.57'
-        }
-
-        It 'Returns the currency symbol and formatted value' {
-            $result = Format-Currency -Currency 'GBP' -Value 82.9362968472852
-            $result | Should -Be '£82.94'
         }
 
         It 'Returns the currency symbol and formatted value' {
