@@ -99,6 +99,8 @@ function Get-SubscriptionCost {
             $Consumption = $null
             $PrevConsumption = $null
 
+            Set-AzContext -Subscription $Name -ErrorAction Stop | Out-Null
+
             for ($BillingMonthCount = 0; $BillingMonthCount -le $PreviousMonths; $BillingMonthCount++) {
 
                 $BillingDate = (Get-Date $BillingMonth).AddMonths(-$BillingMonthCount)
@@ -108,8 +110,6 @@ function Get-SubscriptionCost {
                 $PrevBillingPeriod = $PrevBillingDate.ToString('yyyyMM')
 
                 try {
-                    Set-AzContext -Subscription $Name | Out-Null
-
                     $Consumption = if ($PrevConsumption) {
                         $PrevConsumption
                     }

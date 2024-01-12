@@ -47,61 +47,63 @@ Describe Get-SubscriptionCost {
             Mock Write-Progress {}
 
             Mock Get-AzConsumptionUsageDetail {
-                @{
-                    AccountName       = 'SomeAccount'
-                    BillingPeriodName = '20240101'
-                    ConsumedService   = 'Microsoft.Compute'
-                    Currency          = 'EUR'
-                    Id                = '/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/providers/Microsoft.Billing/billingPeriods/20240101/providers/Microsoft.Consumption/usageDetails/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-                    IsEstimated       = $True
-                    MeterId           = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-                    Name              = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-                    PretaxCost        = 10
-                    Product           = 'Premium SSD Managed Disks - P15 LRS - EU West'
-                    SubscriptionGuid  = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-                    SubscriptionName  = 'SomeSubscription'
-                    UsageEnd          = (Get-Date '02/01/2024 23:59:59')
-                    UsageQuantity     = 0.25
-                    UsageStart        = (Get-Date '02/01/2024 00:00:00')
-                },
-                @{
-                    AccountName       = 'SomeAccount'
-                    BillingPeriodName = '20240101'
-                    ConsumedService   = 'Microsoft.Compute'
-                    Currency          = 'EUR'
-                    Id                = '/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/providers/Microsoft.Billing/billingPeriods/20240101/providers/Microsoft.Consumption/usageDetails/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-                    IsEstimated       = $True
-                    MeterId           = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-                    Name              = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-                    PretaxCost        = 10
-                    Product           = 'Premium SSD Managed Disks - P15 LRS - EU West'
-                    SubscriptionGuid  = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-                    SubscriptionName  = 'SomeSubscription'
-                    UsageEnd          = (Get-Date '02/01/2024 23:59:59')
-                    UsageQuantity     = 0.25
-                    UsageStart        = (Get-Date '02/01/2024 00:00:00')
-                },
-                @{
-                    AccountName       = 'SomeAccount'
-                    BillingPeriodName = '20240101'
-                    ConsumedService   = 'Microsoft.Compute'
-                    Currency          = 'EUR'
-                    Id                = '/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/providers/Microsoft.Billing/billingPeriods/20240101/providers/Microsoft.Consumption/usageDetails/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-                    IsEstimated       = $True
-                    MeterId           = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-                    Name              = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-                    PretaxCost        = 10
-                    Product           = 'Premium SSD Managed Disks - P15 LRS - EU West'
-                    SubscriptionGuid  = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-                    SubscriptionName  = 'SomeSubscription'
-                    UsageEnd          = (Get-Date '02/01/2024 23:59:59')
-                    UsageQuantity     = 0.25
-                    UsageStart        = (Get-Date '02/01/2024 00:00:00')
-                }
+                @(
+                    [pscustomobject]@{
+                        AccountName       = 'SomeAccount'
+                        BillingPeriodName = '20240101'
+                        ConsumedService   = 'Microsoft.Compute'
+                        Currency          = 'EUR'
+                        Id                = '/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/providers/Microsoft.Billing/billingPeriods/20240101/providers/Microsoft.Consumption/usageDetails/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                        IsEstimated       = $True
+                        MeterId           = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                        Name              = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                        PretaxCost        = 10
+                        Product           = 'Premium SSD Managed Disks - P15 LRS - EU West'
+                        SubscriptionGuid  = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                        SubscriptionName  = 'SomeSubscription'
+                        UsageEnd          = (Get-Date '02/01/2024 23:59:59')
+                        UsageQuantity     = 0.25
+                        UsageStart        = (Get-Date '02/01/2024 00:00:00')
+                    },
+                    [pscustomobject]@{
+                        AccountName       = 'SomeAccount'
+                        BillingPeriodName = '20240101'
+                        ConsumedService   = 'Microsoft.Compute'
+                        Currency          = 'EUR'
+                        Id                = '/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/providers/Microsoft.Billing/billingPeriods/20240101/providers/Microsoft.Consumption/usageDetails/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                        IsEstimated       = $True
+                        MeterId           = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                        Name              = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                        PretaxCost        = 10
+                        Product           = 'Premium SSD Managed Disks - P15 LRS - EU West'
+                        SubscriptionGuid  = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                        SubscriptionName  = 'SomeSubscription'
+                        UsageEnd          = (Get-Date '02/01/2024 23:59:59')
+                        UsageQuantity     = 0.25
+                        UsageStart        = (Get-Date '02/01/2024 00:00:00')
+                    },
+                    [pscustomobject]@{
+                        AccountName       = 'SomeAccount'
+                        BillingPeriodName = '20240101'
+                        ConsumedService   = 'Microsoft.Compute'
+                        Currency          = 'EUR'
+                        Id                = '/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/providers/Microsoft.Billing/billingPeriods/20240101/providers/Microsoft.Consumption/usageDetails/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                        IsEstimated       = $True
+                        MeterId           = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                        Name              = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                        PretaxCost        = 10
+                        Product           = 'Premium SSD Managed Disks - P15 LRS - EU West'
+                        SubscriptionGuid  = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                        SubscriptionName  = 'SomeSubscription'
+                        UsageEnd          = (Get-Date '02/01/2024 23:59:59')
+                        UsageQuantity     = 0.25
+                        UsageStart        = (Get-Date '02/01/2024 00:00:00')
+                    }
+                )
             }
 
             Mock Get-AzConsumptionBudget {
-                @{
+                [pscustomobject]@{
                     TimePeriod = @{
                         StartDate = (Get-Date '01/01/2024') 
                         EndDate   = (Get-Date '01/01/2034') 
