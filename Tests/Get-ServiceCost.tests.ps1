@@ -32,10 +32,8 @@ Describe 'Get-ServiceCost' {
             # Assert
             $result | Should -BeOfType 'pscustomobject'
             $result.Count | Should -Be 2
-            $result[0].Service | Should -Be 'Microsoft.Network'
-            $result[0].Cost | Should -Be 50
-            $result[1].Service | Should -Be 'Microsoft.Storage'
-            $result[1].Cost | Should -Be 30
+            ($result | Where-Object { $_.Service -eq 'Microsoft.Network' }).Cost | Should -Be 50
+            ($result | Where-Object { $_.Service -eq 'Microsoft.Storage' }).Cost | Should -Be 30
         }
     }
 }
