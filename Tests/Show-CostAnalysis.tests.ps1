@@ -59,10 +59,14 @@ Describe Show-CostAnalysis {
             Mock Show-SparkLine
         }
 
-        It 'Should return cost analysis when the input is sent via the pipeline' {
+        It 'Should return cost analysis when the input is sent via the pipeline without drawing Sparklines if the module is not installed' {
             
+            Mock Test-PSparklinesModule {
+                $false
+            }
+
             $Cost | Show-CostAnalysis
-            Should -Invoke Write-Host -Times 24 -Exactly
+            Should -Invoke Write-Host -Times 20 -Exactly
         }
 
     }
