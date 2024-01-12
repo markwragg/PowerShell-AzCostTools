@@ -36,8 +36,8 @@ Describe 'Format-Currency' {
     Context 'When given a negative value' {
 
         It 'Returns the currency symbol and formatted negative value' {
-            $result = Format-Currency -Currency 'EUR' -Value -1234.5678
-            $result | Should -Be '€-1,234.57'
+            $result = Format-Currency -Currency 'GBP' -Value -1234.5678
+            $result | Should -Be '£-1,234.57'
         }
     }
 }
