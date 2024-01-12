@@ -1,8 +1,5 @@
 @{
-    ExcludeRules = @(
-        'PSAvoidTrailingWhitespace',
-        'PSAvoidGlobalVars'
-    )
+    ExcludeRules = @()
 
     Severity = @(
         "Warning",
