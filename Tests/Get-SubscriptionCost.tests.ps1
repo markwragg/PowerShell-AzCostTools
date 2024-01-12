@@ -5,6 +5,12 @@ Describe Get-SubscriptionCost {
     InModuleScope AzCostTools {
 
         BeforeAll {
+
+            function Get-AzContext {}
+            function Get-AzSubscription {}
+            function Set-AzContext {}
+            function Get-AzConsumptionUsageDetail {}
+            function Get-AzConsumptionBudget {}
             
             Mock Get-AzContext {
                 New-MockObject -Type Microsoft.Azure.Commands.Profile.Models.Core.PSAzureContext -Properties @{
