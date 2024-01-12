@@ -106,10 +106,10 @@ function Get-SubscriptionCost {
 
                 $PrevBillingDate = (Get-Date $BillingMonth).AddMonths( - (1 + $BillingMonthCount))
                 $PrevBillingPeriod = $PrevBillingDate.ToString('yyyyMM')
-            
+
                 try {
                     Set-AzContext -Subscription $Name | Out-Null
-                
+
                     $Consumption = if ($PrevConsumption) {
                         $PrevConsumption
                     }
@@ -118,7 +118,7 @@ function Get-SubscriptionCost {
 
                         Get-AzConsumptionUsageDetail -BillingPeriodName $BillingPeriod -ErrorAction Stop
                     }
-            
+                    
                     $Currency = ($Consumption | Select-Object -First 1).Currency
                     $Cost = ($Consumption | Measure-Object -Property PretaxCost -Sum).Sum
 
@@ -140,7 +140,7 @@ function Get-SubscriptionCost {
                     if (Test-PSparklinesModule) {
                         $CostSparkLine = Get-Sparkline $DailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
                     }
-            
+
                     $CostObject = [ordered]@{
                         Name                       = $Name
                         BillingPeriod              = $BillingPeriod
@@ -164,7 +164,7 @@ function Get-SubscriptionCost {
                     if ($ComparePrevious) {
 
                         Write-Progress -Activity "Getting data for previous billing period $PrevBillingPeriod" -Status $Name
-                    
+
                         $PrevConsumption = Get-AzConsumptionUsageDetail -BillingPeriodName $PrevBillingPeriod -ErrorAction Stop
 
                         $PrevCost = ($PrevConsumption | Measure-Object -Property PretaxCost -Sum).Sum
@@ -175,7 +175,7 @@ function Get-SubscriptionCost {
                         $CostChange = $Cost - $PrevCost
                         $ChangePct = $CostChange / $PrevCost
                         $DailyCostChange = Get-DailyCostChange -DailyCost $DailyCost -PrevDailyCost $PrevDailyCost
-            
+
                         if (Test-PSparklinesModule) {
                             $PrevCostSparkLine = Get-Sparkline $PrevDailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
                         }

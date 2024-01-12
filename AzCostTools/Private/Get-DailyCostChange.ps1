@@ -7,7 +7,7 @@ function Get-DailyCostChange ($DailyCost, $PrevDailyCost) {
 
         if (-not $PrevCost) { $PrevCost = 0 }
 
-        [pscustomobject]@{ 
+        [pscustomobject]@{
             Date       = $DCost.Date
             PrevDate   = $PrevDate.Date
             Cost       = $DCost.Cost
