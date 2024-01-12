@@ -13,7 +13,7 @@ Describe Get-SubscriptionCost {
             function Get-AzConsumptionBudget {}
             
             Mock Get-AzContext {
-                New-MockObject -Type Microsoft.Azure.Commands.Profile.Models.Core.PSAzureContext -Properties @{
+                @{
                     Name           = 'SomeExistingSubscription'
                     Account        = 'SomeAccount'
                     Environment    = 'AzureCloud'
@@ -31,7 +31,7 @@ Describe Get-SubscriptionCost {
             }
 
             Mock Set-AzContext {
-                New-MockObject -Type Microsoft.Azure.Commands.Profile.Models.Core.PSAzureContext -Properties @{
+                @{
                     Name           = 'SomeSubscription'
                     Account        = 'SomeAccount'
                     Environment    = 'AzureCloud'
