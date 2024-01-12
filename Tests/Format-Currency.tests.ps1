@@ -14,8 +14,8 @@ Describe 'Format-Currency' {
 
         It 'Returns the currency symbol and formatted value' {
 
-            $result = Format-Currency -Currency 'GBP' -Value 1234
-            $result | Should -Be '£1,234.00'
+            $result = Format-Currency -Currency 'USD' -Value 1234
+            $result | Should -Be '$1,234.00'
         }
     }
 
@@ -47,8 +47,8 @@ Describe 'Format-Currency' {
 
         It 'Returns the currency symbol and formatted negative value' {
 
-            $result = Format-Currency -Currency 'GBP' -Value -1234.5678
-            $result | Should -Be '£-1,234.57'
+            $result = Format-Currency -Currency 'USD' -Value -1234.5678
+            $result | Should -Be '$-1,234.57'
         }
     }
 }
