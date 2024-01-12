@@ -11,6 +11,8 @@ Describe Get-SubscriptionCost {
             function Set-AzContext {}
             function Get-AzConsumptionUsageDetail {}
             function Get-AzConsumptionBudget {}
+            function Get-Sparkline {}
+            function Write-Sparkline {}
             
             Mock Get-AzContext {
                 @{
@@ -108,6 +110,9 @@ Describe Get-SubscriptionCost {
                     TimeGrain  = 'Monthly'
                 }
             }
+
+            Mock Get-Sparkline
+            Mock Write-SparkLine
         }
 
         It 'Should return costs for the a specified subscription' {
