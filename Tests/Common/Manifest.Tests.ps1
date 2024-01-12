@@ -4,11 +4,11 @@ BeforeAll {
     }
 
     if (-not $env:BHPSModuleManifest) {
-        $env:BHPSModuleManifest = (Get-ChildItem "$PSScriptRoot\..\..\$env:BHProjectName\*.psd1" -Recurse).FullName
+        $env:BHPSModuleManifest = (Get-ChildItem "$PSScriptRoot\..\..\$env:BHProjectName\$env:BHProjectName.psd1").FullName
     }
 
     if (-not $env:BHProjectPath) {
-        $env:BHPSModuleManifest = (Get-ChildItem "$PSScriptRoot\..\..\" -Recurse).FullName
+        $env:BHProjectPath = (Get-ChildItem "$PSScriptRoot\..\..\" -Recurse).FullName
     }
 
     $moduleName         = $env:BHProjectName

@@ -15,7 +15,7 @@
 
     process {
         $CurrencySymbols = @{
-            'AED' = 'د.إ'
+            'AED' = 'DH'
             'ARS' = '$'
             'AUD' = '$'
             'BRL' = 'R$'
@@ -33,11 +33,11 @@
             'MYR' = 'RM'
             'NOK' = 'kr'
             'NZD' = '$'
-            'OMR' = 'ر.ع.'
+            'OMR' = 'R.O'
             'PKR' = 'Rs'
-            'QAR' = 'ق.ر'
+            'QAR' = 'QR'
             'RUB' = '₽'
-            'SAR' = '﷼'
+            'SAR' = 'SR'
             'SEK' = 'kr'
             'TWD' = 'NT$'
             'TRY' = '₺'
