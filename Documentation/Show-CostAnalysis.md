@@ -6,7 +6,8 @@ Performs analysis of the data returned by Get-SubscriptionCost and generates cha
 ## SYNTAX
 
 ```
-Show-CostAnalysis [[-Cost] <Object>] [[-SparkLineSize] <Int32>] [<CommonParameters>]
+Show-CostAnalysis [[-Cost] <Object>] [[-ConvertToCurrency] <String>] [[-SparkLineSize] <Int32>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -52,6 +53,22 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
+### -ConvertToCurrency
+Specify via 3 letter code, a currency that you would like the subscription costs converted to.
+E.g: USD, GBP, EUR, CAD
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 2
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -SparkLineSize
 The row height of sparklines to generate (requires PSparkines module).
 Default: 3.
@@ -62,7 +79,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 2
+Position: 3
 Default value: 3
 Accept pipeline input: False
 Accept wildcard characters: False
