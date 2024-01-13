@@ -89,6 +89,8 @@ function Show-CostAnalysis {
                     )
                 }
 
+                # Could use $Host.UI.RawUI.MaxWindowSize here to ensure the charts are neatly wrapped to the current window width
+
                 ($SubscriptionCost.DailyCost | Sort-Object { $_.Date -as [datetime] }).Cost | Get-Sparkline -NumLines $SparkLineSize -Emphasis $Emphasis | Show-Sparkline
                 
                 ($SubscriptionCost | Group-Object BillingPeriod) | ForEach-Object { 

@@ -8,7 +8,7 @@ BeforeAll {
     }
 
     if (-not $env:BHProjectPath) {
-        $env:BHProjectPath = (Get-ChildItem "$PSScriptRoot\..\..\" -Recurse).FullName
+        $env:BHProjectPath = "$PSScriptRoot\..\..\"
     }
 
     $moduleName         = $env:BHProjectName
