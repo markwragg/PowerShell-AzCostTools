@@ -7,6 +7,7 @@ Describe Show-CostAnalysis {
         BeforeAll {
             $Cost = @(
                 [PSCustomObject]@{
+                    PSTypeName                 = 'Subscription.Cost'
                     Name                       = 'SomeSubscription'
                     BillingPeriod              = '202401'
                     Currency                   = 'EUR'
@@ -49,6 +50,7 @@ Describe Show-CostAnalysis {
                     )
                 }
                 [PSCustomObject]@{
+                    PSTypeName                 = 'Subscription.Cost'
                     Name                       = 'SomeOtherSubscription'
                     BillingPeriod              = '202401'
                     Currency                   = 'EUR'
@@ -94,21 +96,25 @@ Describe Show-CostAnalysis {
             function Show-Sparkline {}
 
             Mock New-Emphasis
-            
+
             Mock Get-Sparkline { 
                 @{
                     Row   = 0
                     Col   = 0
                     Val   = 1
                     Block = '▁'
-                    Color = 'Gray'
+                    Color = @{
+                        ConsoleColor = 'Gray'
+                    }
                 }
                 @{
                     Row   = 0
                     Col   = 1
                     Val   = 4
                     Block = '▄'
-                    Color = 'Gray'
+                    Color = @{
+                        ConsoleColor = 'Gray'
+                    }
                 }
                 @{
                 
@@ -116,7 +122,9 @@ Describe Show-CostAnalysis {
                     Col   = 2
                     Val   = 8
                     Block = '█'
-                    Color = 'Gray'
+                    Color = @{
+                        ConsoleColor = 'Gray'
+                    }
                 }
             }
 

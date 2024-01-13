@@ -30,9 +30,11 @@ function Show-CostAnalysis {
     #>
     param(
         [Parameter(ValueFromPipeline)]
+        [PSTypeName('Subscription.Cost')]
+        [PSTypeName('Subscription.Cost.ComparePrev')]
         $Cost,
 
-        [ValidateRange(1,10)]
+        [ValidateRange(1, 10)]
         [int]
         $SparkLineSize = 3
     )
@@ -55,8 +57,8 @@ function Show-CostAnalysis {
             $StartDate = ($SubscriptionCost.DailyCost.Date | Sort-Object { $_ -As [datetime] } | Select-Object -First 1)
             $EndDate = ($SubscriptionCost.DailyCost.Date | Sort-Object { $_ -As [datetime] } -Descending | Select-Object -First 1)
             $TotalDays = ($EndDate - $StartDate).Days
-            $Budget = ($SubscriptionCost.ActiveBudgets.BudgetAmount | Select-Object -First 1)
-            $DailyBudget = if ($Budget) { $Budget * 12 / 365 }
+            $Budget = ($SubscriptionCost.ActiveBudgets | Select-Object -First 1)
+            $DailyBudget = if ($Budget.BudgetTimeGrain -eq 'Monthly') { $Budget.BudgetAmount * 12 / 365 } elseif ($Budget.BudgetTimeGrain -eq 'Quarterly') { $Budget.BudgetAmount * 4 / 365 } elseif ($Budget.BudgetTimeGrain -eq 'Annually') { $Budget.BudgetAmount / 365 } else { $null }
             $TotalBudget = $DailyBudget * $TotalDays
             $TotalCost = ($SubscriptionCost.Cost | Measure-Object -Sum).Sum 
 
@@ -124,7 +126,7 @@ function Show-CostAnalysis {
 
             if (Test-PSparklinesModule) {
                 $TopCostSparkLine = $TopServiceCost.Cost | Get-Sparkline -NumLines $SparkLineSize
-                $TopCostSparkLine | ForEach-Object { $_.Color = $colorArray[$_.Col]; $_ } | Show-Sparkline
+                $TopCostSparkLine | ForEach-Object { $_.Color.ConsoleColor = $colorArray[$_.Col]; $_ } | Show-Sparkline
             }
 
             Write-Host
@@ -170,7 +172,7 @@ function Show-CostAnalysis {
 
             if (Test-PSparklinesModule) {
                 $TopCostSparkLine = $TopSubscriptionCost.Cost | Get-Sparkline -NumLines $SparkLineSize
-                $TopCostSparkLine | ForEach-Object { $_.Color = $colorArray[$_.Col]; $_ } | Show-Sparkline
+                $TopCostSparkLine | ForEach-Object { $_.Color.ConsoleColor = $colorArray[$_.Col]; $_ } | Show-Sparkline
             }
 
             Write-Host

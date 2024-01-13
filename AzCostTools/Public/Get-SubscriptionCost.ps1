@@ -142,6 +142,7 @@ function Get-SubscriptionCost {
                     }
 
                     $CostObject = [ordered]@{
+                        PSTypeName                 = 'Subscription.Cost'
                         Name                       = $Name
                         BillingPeriod              = $BillingPeriod
                         Currency                   = $Currency
@@ -201,6 +202,8 @@ function Get-SubscriptionCost {
                         }
 
                         $CostObject += $ComparePreviousCostObject
+
+                        $CostObject['PSTypeName'] = 'Subscription.Cost.ComparePrev'
                     }
 
                     if ($Raw) {
