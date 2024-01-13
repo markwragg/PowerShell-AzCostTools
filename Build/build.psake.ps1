@@ -98,6 +98,9 @@ Task 'CombineFunctionsAndStage' -Depends 'Clean' {
 
     # Copy existing manifest
     Copy-Item -Path $env:BHPSModuleManifest -Destination $StagingModulePath -Recurse
+
+    # Copy Formats
+    Get-ChildItem "$env:BHModulePath\*.ps1xml" -Recurse | Copy-Item -Destination $StagingModulePath -Recurse
 }
 
 
