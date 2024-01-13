@@ -39,3 +39,4 @@ To view some interesting analysis of the cost data returned by that command, exe
 ```powershell
 Get-SubscriptionCost | Show-CostAnalysis
 ```
+
