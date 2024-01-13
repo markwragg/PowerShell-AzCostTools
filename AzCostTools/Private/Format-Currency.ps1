@@ -8,6 +8,9 @@
         [string]
         $Currency,
 
+        [string]
+        $ConvertToCurrency,
+
         [parameter(ValueFromPipeline,Mandatory)]
         [decimal]
         $Value
@@ -46,6 +49,12 @@
             'ZAR' = 'R'
         }
 
-        "$($CurrencySymbols[$Currency]){0:n2}" -f $Value
+        if ($ConvertToCurrency) {
+            $ConvertedValue = $Value | ConvertTo-Currency -SourceCurrency $Currency -DestinationCurrency $ConvertToCurrency
+            "$($CurrencySymbols[$ConvertToCurrency]){0:n2}" -f $ConvertedValue
+        }
+        else {
+            "$($CurrencySymbols[$Currency]){0:n2}" -f $Value
+        }
     }
 }

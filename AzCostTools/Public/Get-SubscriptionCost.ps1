@@ -146,19 +146,19 @@ function Get-SubscriptionCost {
                         Name                       = $Name
                         BillingPeriod              = $BillingPeriod
                         Currency                   = $Currency
-                        Cost                       = [math]::Round($Cost)
+                        Cost                       = [math]::Round($Cost, 2)
                         DailyCost_SparkLine        = ($CostSparkLine -join "`n")
-                        DailyCost_Min              = [math]::Round(($DailyCostCalc).Minimum)
-                        DailyCost_Max              = [math]::Round(($DailyCostCalc).Maximum)
-                        DailyCost_Avg              = [math]::Round(($DailyCostCalc).Average)
+                        DailyCost_Min              = [math]::Round(($DailyCostCalc).Minimum, 2)
+                        DailyCost_Max              = [math]::Round(($DailyCostCalc).Maximum, 2)
+                        DailyCost_Avg              = [math]::Round(($DailyCostCalc).Average, 2)
                         MostExpensive_Date         = ($DailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Date
                         LeastExpensive_Date        = ($DailyCost | Sort-Object Cost | Select-Object -First 1).Date
                         DailyCost                  = $DailyCost
                         CostPerService             = $CostPerService
                         MostExpensiveService       = ($CostPerService | Sort-Object Cost -Descending | Select-Object -First 1).Service
-                        MostExpensiveService_Cost  = [math]::Round(($CostPerService | Sort-Object Cost -Descending | Select-Object -First 1).Cost)
+                        MostExpensiveService_Cost  = [math]::Round(($CostPerService | Sort-Object Cost -Descending | Select-Object -First 1).Cost, 2)
                         LeastExpensiveService      = ($CostPerService | Sort-Object Cost | Select-Object -First 1).Service
-                        LeastExpensiveService_Cost = [math]::Round(($CostPerService | Sort-Object Cost | Select-Object -First 1).Cost)
+                        LeastExpensiveService_Cost = [math]::Round(($CostPerService | Sort-Object Cost | Select-Object -First 1).Cost, 2)
                         ActiveBudgets              = $ActiveBudgets
                     }
 
@@ -185,18 +185,18 @@ function Get-SubscriptionCost {
                             PrevBillingPeriod              = $PrevBillingPeriod
                             PrevCost                       = [math]::Round($PrevCost, 2)
                             PrevDailyCost_SparkLine        = ($PrevCostSparkLine -join "`n")
-                            PrevDailyCost_Min              = [math]::Round(($PrevDailyCostCalc).Minimum)
-                            PrevDailyCost_Max              = [math]::Round(($PrevDailyCostCalc).Maximum)
-                            PrevDailyCost_Avg              = [math]::Round(($PrevDailyCostCalc).Average)
+                            PrevDailyCost_Min              = [math]::Round(($PrevDailyCostCalc).Minimum, 2)
+                            PrevDailyCost_Max              = [math]::Round(($PrevDailyCostCalc).Maximum, 2)
+                            PrevDailyCost_Avg              = [math]::Round(($PrevDailyCostCalc).Average, 2)
                             PrevMostExpensiveDate          = ($DailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Date
                             PrevLeastExpensiveDate         = ($DailyCost | Sort-Object Cost | Select-Object -First 1).Date
                             PrevDailyCost                  = $PrevDailyCost
                             PrevCostPerService             = $PrevCostPerService
                             PrevMostExpensiveService       = ($PrevCostPerService | Sort-Object Cost -Descending | Select-Object -First 1).Service
-                            PrevMostExpensiveService_Cost  = [math]::Round(($PrevCostPerService | Sort-Object Cost -Descending | Select-Object -First 1).Cost)
+                            PrevMostExpensiveService_Cost  = [math]::Round(($PrevCostPerService | Sort-Object Cost -Descending | Select-Object -First 1).Cost, 2)
                             PrevLeastExpensiveService      = ($PrevCostPerService | Sort-Object Cost | Select-Object -First 1).Service
-                            PrevLeastExpensiveService_Cost = [math]::Round(($PrevCostPerService | Sort-Object Cost | Select-Object -First 1).Cost)
-                            CostChange                     = [math]::Round($CostChange)
+                            PrevLeastExpensiveService_Cost = [math]::Round(($PrevCostPerService | Sort-Object Cost | Select-Object -First 1).Cost, 2)
+                            CostChange                     = [math]::Round($CostChange, 2)
                             CostChange_Pct                 = "{0:p2}" -f $ChangePct
                             DailyCostChange                = $DailyCostChange
                         }

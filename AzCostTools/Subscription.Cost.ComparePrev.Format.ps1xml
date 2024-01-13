@@ -26,6 +26,8 @@
           </TableColumnHeader>
           <TableColumnHeader>
           </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
@@ -38,6 +40,9 @@
                 <PropertyName>BillingPeriod</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
+                <PropertyName>PrevBillingPeriod</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
                 <PropertyName>Currency</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
@@ -47,16 +52,16 @@
                 <PropertyName>DailyCost_SparkLine</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>PrevBillingPeriod</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>PrevCurrency</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
                 <PropertyName>PrevCost</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>PrevDailyCost_SparkLine</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>CostChange</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>CostChange_Pct</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
