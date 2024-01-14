@@ -12,7 +12,7 @@
 RootModule = 'AzCostTools.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.0'
+ModuleVersion = '0.0.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -30,7 +30,7 @@ CompanyName = 'wragg.io'
 Copyright = '(c) 2024 Mark Wragg. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'A PowerShell module for cmdlets related to analysing Azure costs'
+Description = 'A PowerShell module for cmdlets related to retrieving and analysing Azure costs'
 
 # Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '3.0'
