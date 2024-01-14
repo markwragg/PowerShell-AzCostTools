@@ -64,9 +64,11 @@ function Get-SubscriptionCost {
     #>
     [CmdletBinding()]
     param(
+        [Alias('Name')]
         [string[]]
         $SubscriptionName,
 
+        [Alias('Month')]
         [datetime]
         $BillingMonth = (Get-Date),
 

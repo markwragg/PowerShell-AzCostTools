@@ -51,7 +51,7 @@ Pipe the result to `Format-List` to see all of the properties that are returned.
 To return cost data for the current billing month for a specified subscription, and compare those costs to the previous billing month, execute:
 
 ```powershell
-Get-SubscriptionCost -Name 'SusbscriptionName' -ComparePrev -SparkLineSize 3
+Get-SubscriptionCost -SubscriptionName 'SusbscriptionName' -ComparePrev -SparkLineSize 3
 ```
 > In the above example we also increased the size of the charts by specifying `-SparkLineSize`.
 
