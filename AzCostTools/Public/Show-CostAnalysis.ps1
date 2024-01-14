@@ -35,6 +35,7 @@
         [Parameter(ValueFromPipeline)]
         $Cost,
 
+        [ValidateLength(3,3)]
         [string]
         $ConvertToCurrency,
 
