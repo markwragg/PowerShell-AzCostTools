@@ -87,7 +87,7 @@ If there is no budget for the subscription the chart will be white.
 
 A chart and table is also generated of the top 15 service costs, with each service name mapped to an individual colour.
 
-If more than on subscription is in the cost data, the cmdlet will end with a total of cost for all subscriptions and a chart showing most to least expensive.
+If more than one subscription is in the cost data, the cmdlet will end with a total of cost for all subscriptions and a chart showing most to least expensive.
 
 ![Show-CostAnalysis](https://github.com/markwragg/PowerShell-AzCostTools/blob/main/Media/Show-CostAnalysis.gif)
 
