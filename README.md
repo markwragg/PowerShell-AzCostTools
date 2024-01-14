@@ -38,11 +38,11 @@ Ensure you have logged in to AZ PowerShell via `Login-AzAccount` and to the tena
 
 To return cost data for the current billing month for all Subscriptions in your current Azure Context, execute:
 
-> Errors may be returned for any subscriptions where the cost data is inaccessible, e.g you are not authorised to access costs of the subscription is of a type where costs are managed elsewhere.
-
 ```powershell
 Get-SubscriptionCost
 ```
+
+> Errors may be returned for any subscriptions where the cost data is inaccessible, e.g you are not authorised to access costs of the subscription is of a type where costs are managed elsewhere.
 
 Pipe the result to `Format-List` to see all of the properties that are returned.
 
@@ -65,28 +65,29 @@ To return a number of previous months, you can use the `-PreviousMonths` paramet
 Get-SubscriptionCost -PreviousMonths 5 -ComparePrevious
 ```
 
-> In the above example we've also used `-ComparePrevious` so that for each month calculations are made comparing it to the previous month.
+> In the above example we've also used `-ComparePrevious` so that for each month calculations are made comparing it to the previous month. This is optional.
 
 ![Get-SubscriptionCost](https://github.com/markwragg/PowerShell-AzCostTools/blob/main/Media/Cost-MultipleSubscription-PrevMonths-ComparePrev.png)
 
 Other parameters available for `Get-SubscriptionCost` include:
 
-`-BillingMonth` -- Use to specify a specific month to retrieve costs (or to start from when also retrieving previous months costs).
-`-Raw` -- Adds properties to the resultant object that include the raw cost data returned by `Get-AzConsumptionUsageDetail` in case you want to do further direct analysis/manipulation.
+`-BillingMonth` — Use to specify a specific month to retrieve costs (or to start from when also retrieving previous months costs).
+`-Raw` — Adds properties to the resultant object that include the raw cost data returned by `Get-AzConsumptionUsageDetail` in case you want to do further direct analysis/manipulation.
 
 ### Cost Analysis
 
-Having retrieved a set of cost data for one or more subscriptions, you can pipe that data to `Show-CostAnalysis` to generate charts and tables analysing the costs.
+Having retrieved a set of cost data for one or more subscriptions, you can pipe that data to `Show-CostAnalysis` to generate charts and tables analysing the costs:
+
+```powershell
+$Cost | Show-CostAnalysis
+```
+
 If `PSparklines` is installed, a daily cost chart will be generated. If the subscription has a budget this will show red for days over budget, and green for under (based on a daily budget calculation).
 If there is no budget for the subscription the chart will be white.
 
 A chart and table is also generated of the top 15 service costs, with each service name mapped to an individual colour.
 
 If more than on subscription is in the cost data, the cmdlet will end with a total of cost for all subscriptions and a chart showing most to least expensive.
-
-```powershell
-Get-SubscriptionCost | Show-CostAnalysis
-```
 
 ![Show-CostAnalysis](https://github.com/markwragg/PowerShell-AzCostTools/blob/main/Media/Show-CostAnalysis.gif)
 
