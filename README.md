@@ -40,3 +40,4 @@ To view some interesting analysis of the cost data returned by that command, exe
 Get-SubscriptionCost | Show-CostAnalysis
 ```
 
+![Show-CostAnalysis](https://github.com/markwragg/PowerShell-AzCostTools/blob/main/Media/Show-CostAnalysis.gif)
