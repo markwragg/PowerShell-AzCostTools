@@ -34,6 +34,7 @@
         -----------
         Returns cost analysis information for the cost data in $Cost with Sparkline charts that are 5 rows in height.
     #>
+    [CmdletBinding()]
     param(
         [Parameter(ValueFromPipeline)]
         $Cost,
@@ -49,13 +50,13 @@
         [int]
         $SparkLineSize = 3
     )
-    Begin {
+    begin {
         $CostObject = @()
     }
-    Process {
+    process {
         $CostObject += $Cost
     }
-    End {
+    end {
         $SubscriptionNames = ($CostObject.Name | Get-Unique)
 
         foreach ($SubscriptionName in $SubscriptionNames) {
@@ -120,7 +121,6 @@
                 Write-Host
                 Write-Host
             }
-
 
             if ($SubscriptionCost.PrevDailyCost -and $ComparePrevious) {
 

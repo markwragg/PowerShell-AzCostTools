@@ -107,7 +107,7 @@ function Get-SubscriptionCost {
         try {
 
             if (-not $SubscriptionName) {
-                $SubscriptionName = (Get-AzSubscription).Name
+                $SubscriptionName = (Get-AzSubscription -ErrorAction Stop).Name
             }
 
             foreach ($Name in $SubscriptionName) {
