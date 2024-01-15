@@ -11,6 +11,9 @@
     .PARAMETER Cost
         The cost object returned by Get-SubscriptionCost
 
+    .PARAMETER ComparePrevious
+        Switch: Enables additional analysis and charts for the previous cost data, Requires Get-SubscriptionCost -ComparePrevious be used for the cost data.
+
     .PARAMETER ConvertToCurrency
         Specify via 3 letter code, a currency that you would like the subscription costs converted to. E.g: USD, GBP, EUR, CAD
 
@@ -35,7 +38,10 @@
         [Parameter(ValueFromPipeline)]
         $Cost,
 
-        [ValidateLength(3,3)]
+        [switch]
+        $ComparePrevious,
+
+        [ValidateLength(3, 3)]
         [string]
         $ConvertToCurrency,
 
@@ -73,9 +79,11 @@
 
             $DatePeriodString = "($($StartDate.ToShortDateString()) ~ $($EndDate.ToShortDateString()))"
 
+            Write-Host "Budget                             :" $(if ($Budget) { "$($Budget.BudgetAmount | Format-Currency -Currency $Currency -ConvertToCurrency $ConvertToCurrency) ($($Budget.BudgetTimeGrain))" } else { "(no budget set)" }) 
+            Write-Host "Total Budget (for period)          :" $(if ($DailyBudget) { "$($TotalBudget | Format-Currency -Currency $Currency -ConvertToCurrency $ConvertToCurrency) $DatePeriodString" } else { "n/a" }) 
+            Write-Host "Daily Budget                       :" $(if ($DailyBudget) { "$($DailyBudget | Format-Currency -Currency $Currency -ConvertToCurrency $ConvertToCurrency)" } else { "n/a" }) 
+            Write-Host
             Write-Host "Peak Daily Cost                    : $(($SubscriptionCost.DailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Cost | Format-Currency -Currency $Currency -ConvertToCurrency $ConvertToCurrency)"
-            Write-Host "Daily Budget                       :" $(if ($DailyBudget) { "$($DailyBudget | Format-Currency -Currency $Currency -ConvertToCurrency $ConvertToCurrency)" } else { "(no budget set)" }) 
-            Write-Host "Total Budget                       :" $(if ($DailyBudget) { "$($TotalBudget | Format-Currency -Currency $Currency -ConvertToCurrency $ConvertToCurrency) $DatePeriodString" } else { "(no budget set)" }) 
             Write-Host "Most Expensive Date                : $(($SubscriptionCost.DailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Date.ToShortDateString())"
             Write-Host "Least Expensive Date               : $(($SubscriptionCost.DailyCost | Sort-Object Cost | Select-Object -First 1).Date.ToShortDateString())"
             Write-Host "Total Cost                         : " -NoNewline
@@ -111,6 +119,37 @@
 
                 Write-Host
                 Write-Host
+            }
+
+
+            if ($SubscriptionCost.PrevDailyCost -and $ComparePrevious) {
+
+                $PrevTotalCost = ($SubscriptionCost.PrevCost | Measure-Object -Sum).Sum 
+
+                Write-Host "Previous Peak Daily Cost           : $(($SubscriptionCost.PrevDailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Cost | Format-Currency -Currency $Currency -ConvertToCurrency $ConvertToCurrency)"
+                Write-Host "Previous Most Expensive Date       : $(($SubscriptionCost.PrevDailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Date.ToShortDateString())"
+                Write-Host "Previous Least Expensive Date      : $(($SubscriptionCost.PrevDailyCost | Sort-Object Cost | Select-Object -First 1).Date.ToShortDateString())"
+                Write-Host "Previous Total Cost                : " -NoNewline
+            
+                $TotalCostColour = if ($Budget -and $PrevTotalCost -gt $TotalBudget) { 'Red' } elseif ($Budget) { 'Green' } else { 'White' }
+
+                Write-Host "$($PrevTotalCost | Format-Currency -Currency $Currency -ConvertToCurrency $ConvertToCurrency)" -NoNewline -ForegroundColor $TotalCostColour
+                Write-Host " $DatePeriodString"
+                Write-Host
+
+                if (Test-PSparklinesModule) {
+                
+                ($SubscriptionCost.PrevDailyCost | Sort-Object { $_.Date -as [datetime] }).Cost | Get-Sparkline -NumLines $SparkLineSize -Emphasis $Emphasis | Show-Sparkline
+            
+                ($SubscriptionCost | Group-Object PrevBillingPeriod) | ForEach-Object { 
+                        $SpaceCount = if (($_.Group.PrevDailyCost.Date.Count - ($_.Name.Length)) -ge 1) { $_.Group.PrevDailyCost.Date.Count - $_.Name.Length } else { 1 }
+                        Write-Host "$($_.Name)" -NoNewline; Write-Host (' ' * $SpaceCount) -NoNewline 
+                    }
+
+                    Write-Host
+                    Write-Host
+
+                }
             }
 
             $TotalCostPerService = $SubscriptionCost.CostPerService | Group-Object Service | ForEach-Object { 
