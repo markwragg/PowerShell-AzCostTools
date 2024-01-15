@@ -116,9 +116,7 @@ function Get-SubscriptionCost {
                     $Consumption = $null
                     $PrevConsumption = $null
 
-                    $CurrentContext = Get-AzContext -ErrorAction Stop
-
-                    if ($CurrentContext.Subscription.Name -ne $Name) {
+                    if ($PreAzContext.Subscription.Name -ne $Name) {
                         Set-AzContext -Subscription $Name -ErrorAction Stop | Out-Null
                     }
 
