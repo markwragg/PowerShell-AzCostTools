@@ -73,10 +73,8 @@ function Get-SubscriptionCost {
         Returns costs from October 2023 to January 2024 for all subscriptions in the current Azure context and includes properties
         for comparing each month with the one 12 months prior
     #>
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    [CmdletBinding()]
     param(
-        [Parameter(ParameterSetName = 'Default', ValueFromPipeline)]
-        [Parameter(ParameterSetName = 'ComparePrevious', ValueFromPipeline)]
         [Alias('Name')]
         [string[]]
         $SubscriptionName,
@@ -93,11 +91,9 @@ function Get-SubscriptionCost {
         [int]
         $SparkLineSize = 1,
 
-        [Parameter(ParameterSetName = 'ComparePrevious')]
         [switch]
         $ComparePrevious,
 
-        [Parameter(ParameterSetName = 'ComparePrevious')]
         [ValidateRange(1)]
         [int]
         $ComparePreviousOffset,
