@@ -119,15 +119,12 @@ function Get-SubscriptionCost {
             foreach ($Name in $SubscriptionName) {
 
                 try {
-                    
                     $Consumption = $null
                     $PrevConsumption = $null
 
-                    $Subscription = Get-AzSubscription $SubscriptionName -ErrorAction Stop
-
                     $CurrentContext = Get-AzContext -ErrorAction Stop
 
-                    if ($CurrentContext.Subscription.Name -ne $Subscription.Name) {
+                    if ($CurrentContext.Subscription.Name -ne $Name) {
                         Set-AzContext -Subscription $Name -ErrorAction Stop | Out-Null
                     }
 
