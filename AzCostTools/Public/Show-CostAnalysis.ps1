@@ -168,13 +168,13 @@
             Write-Host "Least Expensive Service Cost       : $($LeastExpensiveService.Cost | Format-Currency -Currency $Currency -ConvertToCurrency $ConvertToCurrency)"
             Write-Host
 
-            $colorArray = [enum]::GetValues([System.ConsoleColor]) | Where-Object { $_ -ne 'Black' }
+            $colorArray = [enum]::GetValues([System.ConsoleColor]) | Where-Object { $_ -ne 'Black' } | ForEach-Object { $_.ToString() }
 
             $TopServiceCost = $TotalCostPerService | Select-Object -First 15
 
             if (Test-PSparklinesModule) {
                 $TopCostSparkLine = $TopServiceCost.Cost | Get-Sparkline -NumLines $SparkLineSize
-                $TopCostSparkLine | ForEach-Object { $_.Color.ConsoleColor = $colorArray[$_.Col]; $_ } | Show-Sparkline
+                $TopCostSparkLine | ForEach-Object { $_.Color = $colorArray[$_.Col]; $_ } | Show-Sparkline
             }
 
             Write-Host
@@ -219,7 +219,7 @@
 
             if (Test-PSparklinesModule) {
                 $TopCostSparkLine = $TopSubscriptionCost.Cost | Get-Sparkline -NumLines $SparkLineSize
-                $TopCostSparkLine | ForEach-Object { $_.Color.ConsoleColor = $colorArray[$_.Col]; $_ } | Show-Sparkline
+                $TopCostSparkLine | ForEach-Object { $_.Color = $colorArray[$_.Col]; $_ } | Show-Sparkline
             }
 
             Write-Host
