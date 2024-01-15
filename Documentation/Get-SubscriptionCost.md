@@ -72,7 +72,7 @@ If not specified all subscriptions available in the current context will be used
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases:
+Aliases: Name
 
 Required: False
 Position: 1
@@ -89,7 +89,7 @@ If not specified uses the current date.
 ```yaml
 Type: DateTime
 Parameter Sets: (All)
-Aliases:
+Aliases: Month
 
 Required: False
 Position: 2
