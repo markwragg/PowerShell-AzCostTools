@@ -13,7 +13,7 @@
     BuildHelpers     = '2.0.1'
     Pester           = '5.5.0'
     PlatyPS          = '0.12.0'
-    psake            = '4.7.4'
+    psake            = '4.9.0'
     PSDeploy         = '1.0.1'
     PSScriptAnalyzer = '1.17.1'
 }
