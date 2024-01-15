@@ -24,7 +24,7 @@ function Get-SubscriptionCost {
         Switch: Include values for the previous billing month and adds additional properties that compare the current month to the previous.
 
     .PARAMETER ComparePreviousOffset
-        The number of months prior you want to compare the current billing month to, when using -ComparePrevious. Usually this is 1 (the previous month). E.g: set to 3 to compare to 3 months prior.
+        The number of months prior you want to compare the current billing month to, when using -ComparePrevious. Usually this is 1 (the previous month, e.g set to 3 to compare to 3 months prior.
 
     .PARAMETER Raw
         Switch: Include the raw cost consumption data as a property on the returned object.

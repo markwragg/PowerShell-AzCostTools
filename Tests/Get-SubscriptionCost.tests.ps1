@@ -33,14 +33,11 @@ Describe Get-SubscriptionCost {
             }
 
             Mock Set-AzContext {
-                [pscustomobject]@{
+                @{
                     Name           = 'SomeSubscription'
                     Account        = 'SomeAccount'
                     Environment    = 'AzureCloud'
-                    Subscription   = @{
-                        Id   = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-                        Name = 'SomeSubscription'
-                    }
+                    Subscription   = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
                     Tenant         = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
                     TokenCache     = $null
                     VersionProfile = $null
