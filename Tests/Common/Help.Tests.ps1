@@ -40,9 +40,6 @@ AfterAll {
 Describe "Test help for <_.Name>" -ForEach $commands {
 
     BeforeDiscovery {
-
-        Write-Host $_
-        
         # Get command help, parameters, and links
         $command               = $_
         $commandHelp           = Get-Help $command.Name -ErrorAction SilentlyContinue
