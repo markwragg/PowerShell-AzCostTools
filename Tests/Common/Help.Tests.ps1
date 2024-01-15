@@ -42,7 +42,7 @@ Describe "Test help for <_.Name>" -ForEach $commands {
     BeforeDiscovery {
         # Get command help, parameters, and links
         $command               = $_
-        $commandHelp           = Get-Help $command.Name -ErrorAction SilentlyContinue
+        $commandHelp           = (Get-Help $command.Name -ErrorAction SilentlyContinue | Out-String)
         $commandParameters     = global:FilterOutCommonParams -Params $command.ParameterSets.Parameters
         $commandParameterNames = $commandParameters.Name
         $helpLinks             = $commandHelp.relatedLinks.navigationLink.uri
@@ -52,7 +52,7 @@ Describe "Test help for <_.Name>" -ForEach $commands {
         # These vars are needed in both discovery and test phases so we need to duplicate them here
         $command                = $_
         $commandName            = $_.Name
-        $commandHelp            = Get-Help $command.Name -ErrorAction SilentlyContinue
+        $commandHelp            = (Get-Help $command.Name -ErrorAction SilentlyContinue | Out-String)
         $commandParameters      = global:FilterOutCommonParams -Params $command.ParameterSets.Parameters
         $commandParameterNames  = $commandParameters.Name
         $helpParameters         = global:FilterOutCommonParams -Params $commandHelp.Parameters.Parameter
