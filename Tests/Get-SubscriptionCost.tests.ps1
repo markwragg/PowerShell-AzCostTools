@@ -37,7 +37,10 @@ Describe Get-SubscriptionCost {
                     Name           = 'SomeSubscription'
                     Account        = 'SomeAccount'
                     Environment    = 'AzureCloud'
-                    Subscription   = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                    Subscription   = @{
+                        Id   = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                        Name = 'SomeSubscription'
+                    }
                     Tenant         = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
                     TokenCache     = $null
                     VersionProfile = $null

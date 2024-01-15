@@ -138,7 +138,7 @@ Describe Show-CostAnalysis {
             }
 
             $Cost | Show-CostAnalysis
-            Should -Invoke Write-Host -Times 64 -Exactly
+            Should -Invoke Write-Host -Times 68 -Exactly
         }
 
         It 'Should return cost analysis when the input is sent via the pipeline and draw Sparklines' {
@@ -148,7 +148,7 @@ Describe Show-CostAnalysis {
             }
     
             $Cost | Show-CostAnalysis
-            Should -Invoke Write-Host -Times 72 -Exactly
+            Should -Invoke Write-Host -Times 76 -Exactly
         }
     }
 }

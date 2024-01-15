@@ -146,10 +146,8 @@ function Get-SubscriptionCost {
                             }
                             else {
                                 Write-Progress -Activity "Getting data for billing period $BillingPeriod" -Status $Name
-
-                                while (-not $Consumption) {
-                                    Get-AzConsumptionUsageDetail -BillingPeriodName $BillingPeriod -ErrorAction Stop
-                                }
+                                
+                                Get-AzConsumptionUsageDetail -BillingPeriodName $BillingPeriod -ErrorAction Stop
                             }
                     
                             $Currency = ($Consumption | Select-Object -First 1).Currency
