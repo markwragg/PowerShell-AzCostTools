@@ -7,7 +7,7 @@ Retrieves the Azure costs for one or more billing months for one or more subscri
 
 ```
 Get-SubscriptionCost [[-SubscriptionName] <String[]>] [[-BillingMonth] <DateTime>] [[-PreviousMonths] <Int32>]
- [[-SparkLineSize] <Int32>] [-ComparePrevious] [-Raw] [<CommonParameters>]
+ [[-SparkLineSize] <Int32>] [-ComparePrevious] [[-ComparePreviousOffset] <Int32>] [-Raw] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -63,6 +63,16 @@ Description
 Returns costs from October 2023 to January 2024 for all subscriptions in the current Azure context and includes properties
 for comparing each month with the one prior.
 
+### EXAMPLE 6
+```
+Get-SubscriptionCost -BillingMonth 01/2024 -PreviousMonths 3 -ComparePrevious -ComparePreviousOffset 12
+```
+
+Description
+-----------
+Returns costs from October 2023 to January 2024 for all subscriptions in the current Azure context and includes properties
+for comparing each month with the one 12 months prior
+
 ## PARAMETERS
 
 ### -SubscriptionName
@@ -72,7 +82,7 @@ If not specified all subscriptions available in the current context will be used
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: Name
+Aliases:
 
 Required: False
 Position: 1
@@ -89,7 +99,7 @@ If not specified uses the current date.
 ```yaml
 Type: DateTime
 Parameter Sets: (All)
-Aliases: Month
+Aliases:
 
 Required: False
 Position: 2
@@ -141,6 +151,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ComparePreviousOffset
+The number of months prior you want to compare the current billing month to, when using -ComparePrevious, e.g set to 3 to compare to 3 months prior.
+
+```yaml
+Type: Int32
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 5
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

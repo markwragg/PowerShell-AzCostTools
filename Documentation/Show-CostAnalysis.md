@@ -6,8 +6,8 @@ Performs analysis of the data returned by Get-SubscriptionCost and generates cha
 ## SYNTAX
 
 ```
-Show-CostAnalysis [[-Cost] <Object>] [[-ConvertToCurrency] <String>] [[-SparkLineSize] <Int32>]
- [<CommonParameters>]
+Show-CostAnalysis [[-Cost] <Object>] [-ComparePrevious] [[-ConvertToCurrency] <String>]
+ [[-SparkLineSize] <Int32>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -50,6 +50,21 @@ Required: False
 Position: 1
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -ComparePrevious
+Switch: Enables additional analysis and charts for the previous cost data, Requires Get-SubscriptionCost -ComparePrevious be used for the cost data.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
