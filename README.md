@@ -77,8 +77,8 @@ Get-SubscriptionCost -PreviousMonths 6 -ComparePrevious -ComparePreviousOffset 1
 
 Other parameters available for `Get-SubscriptionCost` include:
 
-`-BillingMonth` — Use to specify a specific month to retrieve costs (or as a starting point from when also retrieving previous months costs).
-`-Raw` — Adds properties to the resultant object that include the raw cost data returned by `Get-AzConsumptionUsageDetail` in case you want to do further direct analysis/manipulation.
+* `-BillingMonth` — Use to specify a specific month to retrieve costs (or as a starting point from when also retrieving previous months costs).
+* `-Raw` — Adds properties to the resultant object that include the raw cost data returned by `Get-AzConsumptionUsageDetail` in case you want to do further direct analysis/manipulation.
 
 ### Cost Analysis
 
