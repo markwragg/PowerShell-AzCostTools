@@ -81,7 +81,6 @@ function Get-SubscriptionCost {
         [datetime]
         $BillingMonth = (Get-Date),
 
-        [ValidateRange(0)]
         [int]
         $PreviousMonths = 0,
 
@@ -92,7 +91,6 @@ function Get-SubscriptionCost {
         [switch]
         $ComparePrevious,
 
-        [ValidateRange(1)]
         [int]
         $ComparePreviousOffset,
 
