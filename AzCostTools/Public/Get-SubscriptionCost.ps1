@@ -75,12 +75,15 @@ function Get-SubscriptionCost {
     #>
     [CmdletBinding()]
     param(
+        [Alias('Name','Subscription')]
         [string[]]
         $SubscriptionName,
 
+        [Alias('Month')]
         [datetime]
         $BillingMonth = (Get-Date),
 
+        [Alias('PrevMonths')]
         [int]
         $PreviousMonths = 0,
 
@@ -88,9 +91,11 @@ function Get-SubscriptionCost {
         [int]
         $SparkLineSize = 1,
 
+        [Alias('ComparePrev')]
         [switch]
         $ComparePrevious,
 
+        [Alias('ComparePrevOffset')]
         [int]
         $ComparePreviousOffset,
 

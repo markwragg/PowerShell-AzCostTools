@@ -39,9 +39,11 @@
         [Parameter(ValueFromPipeline)]
         $Cost,
 
+        [Alias('ComparePrev')]
         [switch]
         $ComparePrevious,
 
+        [Alias('Currency')]
         [ValidateLength(3, 3)]
         [string]
         $ConvertToCurrency,
