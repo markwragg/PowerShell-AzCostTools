@@ -82,7 +82,7 @@ If not specified all subscriptions available in the current context will be used
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases:
+Aliases: Name, Subscription
 
 Required: False
 Position: 1
@@ -99,7 +99,7 @@ If not specified uses the current date.
 ```yaml
 Type: DateTime
 Parameter Sets: (All)
-Aliases:
+Aliases: Month
 
 Required: False
 Position: 2
@@ -115,7 +115,7 @@ Default: 0.
 ```yaml
 Type: Int32
 Parameter Sets: (All)
-Aliases:
+Aliases: PrevMonths
 
 Required: False
 Position: 3
@@ -146,7 +146,7 @@ Switch: Include values for the previous billing month and adds additional proper
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: ComparePrev
 
 Required: False
 Position: Named
@@ -161,7 +161,7 @@ The number of months prior you want to compare the current billing month to, whe
 ```yaml
 Type: Int32
 Parameter Sets: (All)
-Aliases:
+Aliases: ComparePrevOffset
 
 Required: False
 Position: 5
