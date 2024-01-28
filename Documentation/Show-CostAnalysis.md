@@ -59,7 +59,7 @@ Switch: Enables additional analysis and charts for the previous cost data, Requi
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: ComparePrev
 
 Required: False
 Position: Named
@@ -75,7 +75,7 @@ E.g: USD, GBP, EUR, CAD
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: Currency
 
 Required: False
 Position: 2
