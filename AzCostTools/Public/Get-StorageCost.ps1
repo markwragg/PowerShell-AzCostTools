@@ -148,8 +148,8 @@ function Get-StorageCost {
 
                     $DailyCost = Get-DailyCost -Consumption $Consumption
                     $DailyCostCalc = $DailyCost.Cost | Measure-Object -Maximum -Minimum -Average -Sum
-                                
-                                
+                    $CostPerProduct = Get-StorageProductCost -Consumption $Consumption
+                                              
                     if (Test-PSparklinesModule) {
                         $CostSparkLine = Get-Sparkline $DailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
                     }
@@ -169,6 +169,7 @@ function Get-StorageCost {
                         MostExpensive_Date  = ($DailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Date
                         LeastExpensive_Date = ($DailyCost | Sort-Object Cost | Select-Object -First 1).Date
                         DailyCost           = $DailyCost
+                        CostPerProduct      = $CostPerProduct
                     }
 
                     if ($ComparePrevious) {
@@ -178,7 +179,8 @@ function Get-StorageCost {
                         $PrevCost = ($PrevConsumption | Measure-Object -Property PretaxCost -Sum).Sum
                         $PrevDailyCost = Get-DailyCost -Consumption $PrevConsumption
                         $PrevDailyCostCalc = $PrevDailyCost.Cost | Measure-Object -Maximum -Minimum -Average -Sum        
-                                
+                        $PrevCostPerProduct = Get-StorageProductCost -Consumption $PrevConsumption
+                      
                         $CostChange = $Cost - $PrevCost
                         $ChangePct = $CostChange / $PrevCost
                         $DailyCostChange = Get-DailyCostChange -DailyCost $DailyCost -PrevDailyCost $PrevDailyCost
@@ -197,6 +199,7 @@ function Get-StorageCost {
                             PrevMostExpensiveDate   = ($DailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Date
                             PrevLeastExpensiveDate  = ($DailyCost | Sort-Object Cost | Select-Object -First 1).Date
                             PrevDailyCost           = $PrevDailyCost
+                            PrevCostPerProduct      = $PrevCostPerProduct
                             CostChange              = [math]::Round($CostChange, 2)
                             CostChange_Pct          = "{0:p2}" -f $ChangePct
                             DailyCostChange         = $DailyCostChange
