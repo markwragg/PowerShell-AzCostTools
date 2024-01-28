@@ -228,7 +228,6 @@ function Get-StorageCost {
                         Write-Error $_
                     }
                 }
-
             }
             catch {
                 Write-Error $_
