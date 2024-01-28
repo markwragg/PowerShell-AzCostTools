@@ -102,141 +102,135 @@ function Get-StorageCost {
         [switch]
         $Raw
     )
-    begin {
-    }
     process {
-        try {
+        
+        for ($BillingMonthCount = 0; $BillingMonthCount -le $PreviousMonths; $BillingMonthCount++) {
+
+            $BillingDate = (Get-Date $BillingMonth).AddMonths(-$BillingMonthCount)
+            $BillingPeriod = $BillingDate.ToString('yyyyMM')
+
+            if (-not $ComparePreviousOffset) { $ComparePreviousOffset = 1 }
+            
             try {
-                for ($BillingMonthCount = 0; $BillingMonthCount -le $PreviousMonths; $BillingMonthCount++) {
+                $StorageConsumption = if ($PrevStorageConsumption -and $ComparePreviousOffset -eq 1) {
+                    $PrevStorageConsumption
+                }
+                else {
+                    Write-Progress -Activity "Getting data for billing period $BillingPeriod" -Status 'Microsoft.Storage'
+                    Get-AzConsumptionUsageDetail -BillingPeriodName $BillingPeriod | Where-Object { $_.ConsumedService -eq 'Microsoft.Storage' }
+                }
 
-                    $BillingDate = (Get-Date $BillingMonth).AddMonths(-$BillingMonthCount)
-                    $BillingPeriod = $BillingDate.ToString('yyyyMM')
-
-                    if (-not $ComparePreviousOffset) { $ComparePreviousOffset = 1 }
+                if ($ComparePrevious) {
                     $PrevBillingDate = (Get-Date $BillingMonth).AddMonths( - ($ComparePreviousOffset + $BillingMonthCount))
                     $PrevBillingPeriod = $PrevBillingDate.ToString('yyyyMM')
 
-                    try {
-                        $StorageConsumption = if ($PrevStorageConsumption -and $ComparePreviousOffset -eq 1) {
-                            $PrevStorageConsumption
-                        }
-                        else {
-                            Write-Progress -Activity "Getting data for billing period $BillingPeriod" -Status 'ConsumedService -eq Microsoft.Storage'
-                            Get-AzConsumptionUsageDetail -BillingPeriodName $BillingPeriod | Where-Object { $_.ConsumedService -eq 'Microsoft.Storage' }
-                        }
+                    $PrevStorageConsumption = Get-AzConsumptionUsageDetail -BillingPeriodName $PrevBillingPeriod | Where-Object { $_.ConsumedService -eq 'Microsoft.Storage' }
+                    Write-Progress -Activity "Getting data for previous billing period $PrevBillingPeriod" -Status 'Microsoft.Storage'
+                }
 
-                        if ($ComparePrevious) {
-                            $PrevStorageConsumption = Get-AzConsumptionUsageDetail -BillingPeriodName $PrevBillingPeriod | Where-Object { $_.ConsumedService -eq 'Microsoft.Storage' }
-                            Write-Progress -Activity "Getting data for previous billing period $PrevBillingPeriod" -Status 'ConsumedService -eq Microsoft.Storage'
-                        }
+                if (-not $AccountName) {
+                    $AccountName = ($StorageConsumption.InstanceName | Sort-Object -Unique)
+                }
 
-                        if (-not $AccountName) {
-                            $AccountName = ($StorageConsumption.InstanceName | Sort-Object -Unique)
-                        }
+                foreach ($Name in $AccountName) {
 
-                        foreach ($Name in $AccountName) {
+                    $Consumption = $null
+                    $PrevConsumption = $null            
 
-                            $Consumption = $null
-                            $PrevConsumption = $null            
+                    $Consumption = $StorageConsumption | Where-Object { $_.InstanceName -eq $Name }
 
-                            $Consumption = $StorageConsumption | Where-Object { $_.InstanceName -eq $Name }
+                    $CostInstance = $Consumption | Where-Object { $_.InstanceId } | Select-Object -First 1
+                    $Currency = $CostInstance.Currency
+                    $InstanceIdArray = $CostInstance.InstanceId -split '/'
+                    $ResourceGroupName = if ($InstanceIdArray.count -ge 4) { $InstanceIdArray[4] } else { $null }
+                       
+                    $Cost = ($Consumption | Measure-Object -Property PretaxCost -Sum).Sum
 
-                            $Currency = ($Consumption | Select-Object -First 1).Currency
-                            $Cost = ($Consumption | Measure-Object -Property PretaxCost -Sum).Sum
-
-                            $DailyCost = Get-DailyCost -Consumption $Consumption
-                            $DailyCostCalc = $DailyCost.Cost | Measure-Object -Maximum -Minimum -Average -Sum
+                    $DailyCost = Get-DailyCost -Consumption $Consumption
+                    $DailyCostCalc = $DailyCost.Cost | Measure-Object -Maximum -Minimum -Average -Sum
                                 
                                 
-                            if (Test-PSparklinesModule) {
-                                $CostSparkLine = Get-Sparkline $DailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
-                            }
-
-                            $CostObject = [ordered]@{
-                                PSTypeName          = 'Storage.Cost'
-                                StorageAccountName  = $Name
-                                BillingPeriod       = $BillingPeriod
-                                Currency            = $Currency
-                                Cost                = [math]::Round($Cost, 2)
-                                DailyCost_SparkLine = ($CostSparkLine -join "`n")
-                                DailyCost_Min       = [math]::Round(($DailyCostCalc).Minimum, 2)
-                                DailyCost_Max       = [math]::Round(($DailyCostCalc).Maximum, 2)
-                                DailyCost_Avg       = [math]::Round(($DailyCostCalc).Average, 2)
-                                MostExpensive_Date  = ($DailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Date
-                                LeastExpensive_Date = ($DailyCost | Sort-Object Cost | Select-Object -First 1).Date
-                                DailyCost           = $DailyCost
-                            }
-
-                            if ($ComparePrevious) {
-
-                                $PrevConsumption = $PrevStorageConsumption | Where-Object { $_.InstanceName -eq $Name }
-
-                                $PrevCost = ($PrevConsumption | Measure-Object -Property PretaxCost -Sum).Sum
-                                $PrevDailyCost = Get-DailyCost -Consumption $PrevConsumption
-                                $PrevDailyCostCalc = $PrevDailyCost.Cost | Measure-Object -Maximum -Minimum -Average -Sum        
-                                
-                                $CostChange = $Cost - $PrevCost
-                                $ChangePct = $CostChange / $PrevCost
-                                $DailyCostChange = Get-DailyCostChange -DailyCost $DailyCost -PrevDailyCost $PrevDailyCost
-
-                                if (Test-PSparklinesModule) {
-                                    $PrevCostSparkLine = Get-Sparkline $PrevDailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
-                                }
-
-                                $ComparePreviousCostObject = [ordered]@{
-                                    PrevBillingPeriod       = $PrevBillingPeriod
-                                    PrevCost                = [math]::Round($PrevCost, 2)
-                                    PrevDailyCost_SparkLine = ($PrevCostSparkLine -join "`n")
-                                    PrevDailyCost_Min       = [math]::Round(($PrevDailyCostCalc).Minimum, 2)
-                                    PrevDailyCost_Max       = [math]::Round(($PrevDailyCostCalc).Maximum, 2)
-                                    PrevDailyCost_Avg       = [math]::Round(($PrevDailyCostCalc).Average, 2)
-                                    PrevMostExpensiveDate   = ($DailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Date
-                                    PrevLeastExpensiveDate  = ($DailyCost | Sort-Object Cost | Select-Object -First 1).Date
-                                    PrevDailyCost           = $PrevDailyCost
-                                    CostChange              = [math]::Round($CostChange, 2)
-                                    CostChange_Pct          = "{0:p2}" -f $ChangePct
-                                    DailyCostChange         = $DailyCostChange
-                                }
-
-                                $CostObject += $ComparePreviousCostObject
-
-                                $CostObject['PSTypeName'] = 'Storage.Cost.ComparePrev'
-                            }
-
-                            if ($Raw) {
-
-                                $RawCostObject = [ordered]@{
-                                    Consumption_Raw = $Consumption
-                                }
-
-                                $CostObject += $RawCostObject
-                            }
-
-                            if ($ComparePrevious -and $Raw) {
-
-                                $PrevRawCostObject = [ordered]@{
-                                    PrevConsumption_Raw = $PrevConsumption
-                                }
-
-                                $CostObject += $PrevRawCostObject
-                            }
-
-                            [pscustomobject]$CostObject
-                        }
+                    if (Test-PSparklinesModule) {
+                        $CostSparkLine = Get-Sparkline $DailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
                     }
-                    catch {
-                        Write-Error $_
+
+                    $CostObject = [ordered]@{
+                        PSTypeName          = 'Storage.Cost'
+                        StorageAccountName  = $Name
+                        ResourceGroupName   = $ResourceGroupName
+                        SubscriptionName    = $CostInstance.SubscriptionName
+                        BillingPeriod       = $BillingPeriod
+                        Currency            = $Currency
+                        Cost                = [math]::Round($Cost, 2)
+                        DailyCost_SparkLine = ($CostSparkLine -join "`n")
+                        DailyCost_Min       = [math]::Round(($DailyCostCalc).Minimum, 2)
+                        DailyCost_Max       = [math]::Round(($DailyCostCalc).Maximum, 2)
+                        DailyCost_Avg       = [math]::Round(($DailyCostCalc).Average, 2)
+                        MostExpensive_Date  = ($DailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Date
+                        LeastExpensive_Date = ($DailyCost | Sort-Object Cost | Select-Object -First 1).Date
+                        DailyCost           = $DailyCost
                     }
+
+                    if ($ComparePrevious) {
+
+                        $PrevConsumption = $PrevStorageConsumption | Where-Object { $_.InstanceName -eq $Name }
+
+                        $PrevCost = ($PrevConsumption | Measure-Object -Property PretaxCost -Sum).Sum
+                        $PrevDailyCost = Get-DailyCost -Consumption $PrevConsumption
+                        $PrevDailyCostCalc = $PrevDailyCost.Cost | Measure-Object -Maximum -Minimum -Average -Sum        
+                                
+                        $CostChange = $Cost - $PrevCost
+                        $ChangePct = $CostChange / $PrevCost
+                        $DailyCostChange = Get-DailyCostChange -DailyCost $DailyCost -PrevDailyCost $PrevDailyCost
+
+                        if (Test-PSparklinesModule) {
+                            $PrevCostSparkLine = Get-Sparkline $PrevDailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
+                        }
+
+                        $ComparePreviousCostObject = [ordered]@{
+                            PrevBillingPeriod       = $PrevBillingPeriod
+                            PrevCost                = [math]::Round($PrevCost, 2)
+                            PrevDailyCost_SparkLine = ($PrevCostSparkLine -join "`n")
+                            PrevDailyCost_Min       = [math]::Round(($PrevDailyCostCalc).Minimum, 2)
+                            PrevDailyCost_Max       = [math]::Round(($PrevDailyCostCalc).Maximum, 2)
+                            PrevDailyCost_Avg       = [math]::Round(($PrevDailyCostCalc).Average, 2)
+                            PrevMostExpensiveDate   = ($DailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Date
+                            PrevLeastExpensiveDate  = ($DailyCost | Sort-Object Cost | Select-Object -First 1).Date
+                            PrevDailyCost           = $PrevDailyCost
+                            CostChange              = [math]::Round($CostChange, 2)
+                            CostChange_Pct          = "{0:p2}" -f $ChangePct
+                            DailyCostChange         = $DailyCostChange
+                        }
+
+                        $CostObject += $ComparePreviousCostObject
+
+                        $CostObject['PSTypeName'] = 'Storage.Cost.ComparePrev'
+                    }
+
+                    if ($Raw) {
+
+                        $RawCostObject = [ordered]@{
+                            Consumption_Raw = $Consumption
+                        }
+
+                        $CostObject += $RawCostObject
+                    }
+
+                    if ($ComparePrevious -and $Raw) {
+
+                        $PrevRawCostObject = [ordered]@{
+                            PrevConsumption_Raw = $PrevConsumption
+                        }
+
+                        $CostObject += $PrevRawCostObject
+                    }
+
+                    [pscustomobject]$CostObject
                 }
             }
             catch {
                 Write-Error $_
             }
-        }
-        catch {
-            throw $_
-        }
-        finally {
         }
     }
 }
