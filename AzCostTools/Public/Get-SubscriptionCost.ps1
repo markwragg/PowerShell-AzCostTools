@@ -198,7 +198,7 @@ function Get-SubscriptionCost {
 
                                 $CostChange = $Cost - $PrevCost
                                 $ChangePct = $CostChange / $PrevCost
-                                $DailyCostChange = Get-DailyCostChange -DailyCost $DailyCost -PrevDailyCost $PrevDailyCost
+                                $DailyCostChange = Get-DailyCostChange -DailyCost $DailyCost -PrevDailyCost $PrevDailyCost -ComparePreviousOffset $ComparePreviousOffset
 
                                 if (Test-PSparklinesModule) {
                                     $PrevCostSparkLine = Get-Sparkline $PrevDailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline

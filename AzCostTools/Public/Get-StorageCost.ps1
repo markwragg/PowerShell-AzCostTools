@@ -26,6 +26,9 @@ function Get-StorageCost {
     .PARAMETER ComparePreviousOffset
         The number of months prior you want to compare the current billing month to, when using -ComparePrevious, e.g set to 3 to compare to 3 months prior.
 
+    .PARAMETER ExcludeSparklines
+        Switch: Do not generate/include Sparklines in the output.
+
     .PARAMETER Raw
         Switch: Include the raw cost consumption data as a property on the returned object.
 
@@ -100,6 +103,9 @@ function Get-StorageCost {
         $ComparePreviousOffset,
 
         [switch]
+        $ExcludeSparklines,
+
+        [switch]
         $Raw
     )
     process {
@@ -140,17 +146,25 @@ function Get-StorageCost {
                     $Consumption = $StorageConsumption | Where-Object { $_.InstanceName -eq $Name }
 
                     $CostInstance = $Consumption | Where-Object { $_.InstanceId } | Select-Object -First 1
-                    $Currency = $CostInstance.Currency
-                    $InstanceIdArray = $CostInstance.InstanceId -split '/'
-                    $ResourceGroupName = if ($InstanceIdArray.count -ge 4) { $InstanceIdArray[4] } else { $null }
+
+                    if ($CostInstance) {
+                        $Currency = $CostInstance.Currency
+                        $InstanceIdArray = $CostInstance.InstanceId -split '/'
+                        $ResourceGroupName = if ($InstanceIdArray.count -ge 4) { $InstanceIdArray[4] } else { $null }
+                    }
+                    else {
+                        $Currency = $null
+                        $ResourceGroupName = $null
+                    }
                        
                     $Cost = ($Consumption | Measure-Object -Property PretaxCost -Sum).Sum
 
                     $DailyCost = Get-DailyCost -Consumption $Consumption
                     $DailyCostCalc = $DailyCost.Cost | Measure-Object -Maximum -Minimum -Average -Sum
+
                     $CostPerProduct = Get-StorageProductCost -Consumption $Consumption
                                               
-                    if (Test-PSparklinesModule) {
+                    if (Test-PSparklinesModule -and -not $ExcludeSparklines) {
                         $CostSparkLine = Get-Sparkline $DailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
                     }
 
@@ -172,20 +186,38 @@ function Get-StorageCost {
                         CostPerProduct      = $CostPerProduct
                     }
 
+                    if ($ExcludeSparklines) { 
+                        $CostObject.Remove('DailyCost_SparkLine') 
+                        $CostObject['PSTypeName'] = 'Storage.CostNoSparkLines'
+                    }
+
                     if ($ComparePrevious) {
 
                         $PrevConsumption = $PrevStorageConsumption | Where-Object { $_.InstanceName -eq $Name }
 
-                        $PrevCost = ($PrevConsumption | Measure-Object -Property PretaxCost -Sum).Sum
+                        if ($PrevConsumption) {
+                            $PrevCost = ($PrevConsumption | Measure-Object -Property PretaxCost -Sum).Sum
+                        }
+                        else {
+                            $PrevCost = $null
+                        }
+                        
                         $PrevDailyCost = Get-DailyCost -Consumption $PrevConsumption
                         $PrevDailyCostCalc = $PrevDailyCost.Cost | Measure-Object -Maximum -Minimum -Average -Sum        
                         $PrevCostPerProduct = Get-StorageProductCost -Consumption $PrevConsumption
                       
                         $CostChange = $Cost - $PrevCost
-                        $ChangePct = $CostChange / $PrevCost
-                        $DailyCostChange = Get-DailyCostChange -DailyCost $DailyCost -PrevDailyCost $PrevDailyCost
 
-                        if (Test-PSparklinesModule) {
+                        if ($PrevCost -gt 0) {
+                            $ChangePct = $CostChange / $PrevCost
+                        }
+                        else {
+                            $ChangePct = $null
+                        }
+
+                        $DailyCostChange = Get-DailyCostChange -DailyCost $DailyCost -PrevDailyCost $PrevDailyCost -ComparePreviousOffset $ComparePreviousOffset
+
+                        if (Test-PSparklinesModule -and -not $ExcludeSparklines) {
                             $PrevCostSparkLine = Get-Sparkline $PrevDailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
                         }
 
@@ -205,9 +237,17 @@ function Get-StorageCost {
                             DailyCostChange         = $DailyCostChange
                         }
 
+                        if ($ExcludeSparklines) { 
+                            $ComparePreviousCostObject.Remove('PrevDailyCost_SparkLine')
+                            $CostObject['PSTypeName'] = 'Storage.Cost.ComparePrevNoSparklines'
+                        }
+                        else {
+                            $CostObject['PSTypeName'] = 'Storage.Cost.ComparePrev'
+                        }
+
                         $CostObject += $ComparePreviousCostObject
 
-                        $CostObject['PSTypeName'] = 'Storage.Cost.ComparePrev'
+                        
                     }
 
                     if ($Raw) {

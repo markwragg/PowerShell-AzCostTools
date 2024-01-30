@@ -39,7 +39,7 @@ Describe 'Get-DailyCostChange' {
             $result[0].CostChange | Should -Be 5
 
             $result[1].Date | Should -Be (Get-Date '2022-02-02')
-            $result[1].PrevDate | Should -Be $null
+            $result[1].PrevDate | Should -Be $(Get-Date '2022-01-02')
             $result[1].Cost | Should -Be 20
             $result[1].PrevCost | Should -Be 0
             $result[1].CostChange | Should -Be 20

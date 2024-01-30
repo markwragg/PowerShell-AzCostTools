@@ -63,7 +63,7 @@ PowerShellVersion = '3.0'
 # TypesToProcess = @()
 
 # Format files (.ps1xml) to be loaded when importing this module
-FormatsToProcess = @('Subscription.Cost.Format.ps1xml','Subscription.Cost.ComparePrev.Format.ps1xml','Storage.Cost.Format.ps1xml','Storage.Cost.ComparePrev.Format.ps1xml')
+FormatsToProcess = @('Subscription.Cost.Format.ps1xml','Subscription.Cost.ComparePrev.Format.ps1xml','Storage.Cost.Format.ps1xml','Storage.Cost.ComparePrev.Format.ps1xml','Storage.CostNoSparklines.Format.ps1xml','Storage.Cost.ComparePrevNoSparklines.Format.ps1xml')
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 # NestedModules = @()

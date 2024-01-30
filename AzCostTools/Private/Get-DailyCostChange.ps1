@@ -1,18 +1,18 @@
-function Get-DailyCostChange ($DailyCost, $PrevDailyCost) {
+function Get-DailyCostChange ($DailyCost, $PrevDailyCost, $ComparePreviousOffset = 1) {
 
     foreach ($DCost in $DailyCost) {
 
-        $PrevDate = $PrevDailyCost | where-Object { $_.Date.AddMonths(1) -eq $DCost.Date }
-        $PrevCost = ($PrevDate.Cost | Measure-Object -Sum).Sum
+        $PrevDate = $DCost.Date.AddMonths(-$ComparePreviousOffset)
+        $PrevCost = (($PrevDailyCost | Where-Object { $_.Date -eq $PrevDate }).Cost | Measure-Object -Sum).Sum
 
         if (-not $PrevCost) { $PrevCost = 0 }
 
         [pscustomobject]@{
             Date       = $DCost.Date
             PrevDate   = $PrevDate.Date
-            Cost       = $DCost.Cost
-            PrevCost   = $PrevCost
-            CostChange = ($DCost.Cost - $PrevCost)
+            Cost       = [decimal]$DCost.Cost
+            PrevCost   = [decimal]$PrevCost
+            CostChange = [decimal]($DCost.Cost - $PrevCost)
         }
     }
 }
