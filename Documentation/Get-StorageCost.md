@@ -7,7 +7,8 @@ Retrieves the Azure costs for one or more billing months for one or more storage
 
 ```
 Get-StorageCost [[-AccountName] <String[]>] [[-BillingMonth] <DateTime>] [[-PreviousMonths] <Int32>]
- [[-SparkLineSize] <Int32>] [-ComparePrevious] [[-ComparePreviousOffset] <Int32>] [-Raw] [<CommonParameters>]
+ [[-SparkLineSize] <Int32>] [-ComparePrevious] [[-ComparePreviousOffset] <Int32>] [-ExcludeSparklines] [-Raw]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -166,6 +167,21 @@ Aliases: ComparePrevOffset
 Required: False
 Position: 5
 Default value: 0
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ExcludeSparklines
+Switch: Do not generate/include Sparklines in the output.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
