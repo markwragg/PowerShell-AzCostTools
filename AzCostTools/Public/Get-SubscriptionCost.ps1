@@ -161,7 +161,9 @@ function Get-SubscriptionCost {
                             }
 
                             if (Test-PSparklinesModule) {
-                                $CostSparkLine = Get-Sparkline $DailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
+                                $CostSparkLine = if ($DailyCost.Count -gt 1) {
+                                    $CostSparkLine = Get-Sparkline $DailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
+                                }
                             }
 
                             $CostObject = [ordered]@{
@@ -201,7 +203,9 @@ function Get-SubscriptionCost {
                                 $DailyCostChange = Get-DailyCostChange -DailyCost $DailyCost -PrevDailyCost $PrevDailyCost -ComparePreviousOffset $ComparePreviousOffset
 
                                 if (Test-PSparklinesModule) {
-                                    $PrevCostSparkLine = Get-Sparkline $PrevDailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
+                                    $PrevCostSparkLine = if ($PrevDailyCost.Count -gt 1) {
+                                        Get-Sparkline $PrevDailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
+                                    }
                                 }
 
                                 $ComparePreviousCostObject = [ordered]@{

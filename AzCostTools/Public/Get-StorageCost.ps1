@@ -160,12 +160,15 @@ function Get-StorageCost {
                     $Cost = ($Consumption | Measure-Object -Property PretaxCost -Sum).Sum
 
                     $DailyCost = Get-DailyCost -Consumption $Consumption
+                    
                     $DailyCostCalc = $DailyCost.Cost | Measure-Object -Maximum -Minimum -Average -Sum
 
                     $CostPerProduct = Get-StorageProductCost -Consumption $Consumption
                                               
                     if (Test-PSparklinesModule -and -not $ExcludeSparklines) {
-                        $CostSparkLine = Get-Sparkline $DailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
+                        $CostSparkLine = if ($DailyCost.Count -gt 1) {
+                            Get-Sparkline $DailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
+                        }
                     }
 
                     $CostObject = [ordered]@{
@@ -218,7 +221,9 @@ function Get-StorageCost {
                         $DailyCostChange = Get-DailyCostChange -DailyCost $DailyCost -PrevDailyCost $PrevDailyCost -ComparePreviousOffset $ComparePreviousOffset
 
                         if (Test-PSparklinesModule -and -not $ExcludeSparklines) {
-                            $PrevCostSparkLine = Get-Sparkline $PrevDailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
+                            $PrevCostSparkLine = if ($PrevDailyCost.Count -gt 1) {
+                                Get-Sparkline $PrevDailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
+                            }
                         }
 
                         $ComparePreviousCostObject = [ordered]@{
