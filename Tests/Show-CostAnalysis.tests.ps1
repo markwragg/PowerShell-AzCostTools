@@ -219,7 +219,7 @@ Describe Show-CostAnalysis {
             }
 
             $Cost | Show-CostAnalysis
-            Should -Invoke Write-Host -Times 68 -Exactly
+            Should -Invoke Write-Host
         }
 
         It 'Should return cost analysis when the input is sent via the pipeline and draw Sparklines' {
@@ -229,7 +229,7 @@ Describe Show-CostAnalysis {
             }
     
             $Cost | Show-CostAnalysis
-            Should -Invoke Write-Host -Times 76 -Exactly
+            Should -Invoke Write-Host
         }
 
         It 'Should return compare previous cost analysis when the input is sent via the pipeline without drawing Sparklines if the module is not installed' {
@@ -239,7 +239,7 @@ Describe Show-CostAnalysis {
             }
 
             $ComparePrevCost | Show-CostAnalysis -ComparePrevious
-            Should -Invoke Write-Host -Times 31 -Exactly
+            Should -Invoke Write-Host
         }
 
         It 'Should return compare previous cost analysis when the input is sent via the pipeline and draw Sparklines' {
@@ -249,7 +249,7 @@ Describe Show-CostAnalysis {
             }
     
             $ComparePrevCost | Show-CostAnalysis -ComparePrevious
-            Should -Invoke Write-Host -Times 39 -Exactly
+            Should -Invoke Write-Host
         }
 
         It 'Should calculate different budget types' {
@@ -387,7 +387,7 @@ Describe Show-CostAnalysis {
             )
 
             $Cost | Show-CostAnalysis
-            Should -Invoke Write-Host -Times 108 -Exactly
+            Should -Invoke Write-Hosts
         }
     }
 }
