@@ -35,15 +35,15 @@ Describe 'ConvertTo-Currency' {
         }
 
         Mock Get-Content {
-            @'
+            @"
 {
     "result": "success",
     "provider": "https://www.exchangerate-api.com",
     "documentation": "https://www.exchangerate-api.com/docs/free",
     "terms_of_use": "https://www.exchangerate-api.com/terms",
-    "time_last_update_unix": 1706918552,
+    "time_last_update_unix": $([int](New-TimeSpan 01/01/1970 (Get-Date).AddDays(-1)).TotalSeconds),
     "time_last_update_utc": "Sat, 03 Feb 2024 00:02:32 +0000",
-    "time_next_update_unix": 1707006302,
+    "time_next_update_unix": $([int](New-TimeSpan 01/01/1970 (Get-Date)).TotalSeconds),
     "time_next_update_utc": "Sun, 04 Feb 2024 00:25:02 +0000",
     "time_eol_unix": 0,
     "base_code": "GBP",
@@ -53,13 +53,7 @@ Describe 'ConvertTo-Currency' {
         "ZWL": 13387.8296
     }
 }              
-'@
-        }
-
-        $GetDate = Get-Command Get-Date
-
-        Mock Get-Date {
-            & $GetDate 03/02/2024
+"@
         }
 
         Mock Out-File
@@ -71,10 +65,6 @@ Describe 'ConvertTo-Currency' {
 
             Mock Test-Path { $true }
 
-            Mock Get-Date -ParameterFilter { $UnixTimeSeconds } {
-                & $GetDate 03/02/2024
-            }    
-
             $result = 100 | ConvertTo-Currency -SourceCurrency GBP -DestinationCurrency USD
             $result | Should -Be 126.655200
 
@@ -85,11 +75,6 @@ Describe 'ConvertTo-Currency' {
         It 'Returns an error for an unknown currency' {
 
             Mock Test-Path { $true }
-
-            Mock Get-Date -ParameterFilter { $UnixTimeSeconds } {
-                & $GetDate 03/02/2024
-            }    
-
             Mock Write-Error
 
             $result = 100 | ConvertTo-Currency -SourceCurrency GBP -DestinationCurrency XXX
@@ -114,11 +99,7 @@ Describe 'ConvertTo-Currency' {
 
         It 'Convert from GBP to USD using API and update out of date cached currency' {
 
-            Mock Get-Date -ParameterFilter { $UnixTimeSeconds } {
-                & $GetDate 01/02/2024
-            }
-
-            Mock Test-Path { $true }
+            Mock Test-Path { $false }
             Mock Get-Content {
                 @'
 {
@@ -139,22 +120,17 @@ Describe 'ConvertTo-Currency' {
     }
 }
 '@
-                
             }
 
             $result = 100 | ConvertTo-Currency -SourceCurrency GBP -DestinationCurrency USD
             $result | Should -Be 126.655200
 
-            Should -Invoke Get-Content -Exactly 1
+            Should -Not -Invoke Get-Content
             Should -Invoke Invoke-RestMethod -Exactly 1
             Should -Invoke Out-File -Exactly 1
         }
 
         It 'Returns an error if the API fails' {
-
-            Mock Get-Date -ParameterFilter { $UnixTimeSeconds } {
-                & $GetDate 01/02/2024
-            }
 
             Mock Test-Path { $true }
 
