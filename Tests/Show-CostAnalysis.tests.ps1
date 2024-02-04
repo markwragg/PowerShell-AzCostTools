@@ -387,7 +387,7 @@ Describe Show-CostAnalysis {
             )
 
             $Cost | Show-CostAnalysis
-            Should -Invoke Write-Hosts
+            Should -Invoke Write-Host
         }
     }
 }
