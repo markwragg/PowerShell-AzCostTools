@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [0.0.2] - 2024-03-02
 
 * Implemented `Get-StorageCost` to retrieve Azure Storage account cost data and compare to the previous month.
 * Added `-ComparePreviousOffset` parameter to `Get-SubscriptionCost` configure how many months previous to compare cost data for.
