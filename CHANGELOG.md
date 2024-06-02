@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [0.0.3] - 2024-06-02
 
 * Implemented `Get-CostAdvisor` to return Azure advisor cost recommendations for one or more subscriptions ([#5](https://github.com/markwragg/PowerShell-AzCostTools/issues/5)).
 
