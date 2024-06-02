@@ -1,5 +1,9 @@
 # Change Log
 
+## !Deploy
+
+* Implemented `Get-CostAdvisor` to return Azure advisor cost recommendations for one or more subscriptions ([#5](https://github.com/markwragg/PowerShell-AzCostTools/issues/5)).
+
 ## [0.0.2] - 2024-03-02
 
 * Implemented `Get-StorageCost` to retrieve Azure Storage account cost data and compare to the previous month.
