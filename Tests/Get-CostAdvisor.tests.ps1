@@ -93,27 +93,27 @@ Describe Get-CostAdvisor {
 
         It 'Should return recommendations for the specified subscription' {
             $Result = Get-CostAdvisor -SubscriptionName 'SomeSubscription'
-            $Result.count | Should -Be 1
+            @($Result).count | Should -Be 1
         }
 
         It 'Should return recommendations for all current subscriptions' {
             $Result = Get-CostAdvisor
-            $Result.count | Should -Be 1
+            @($Result).count | Should -Be 1
         }
 
         It 'Should exclude non-cost recommendations' {
             $Result = Get-CostAdvisor
-            $Result.count | Should -Be 1
+            @($Result).count | Should -Be 1
         }
 
-        It 'Should return recommendations for the a specified subscription and include the raw consumption data' {
+        It 'Should return recommendations for a specified subscription and include the raw consumption data' {
             $Result = Get-CostAdvisor -SubscriptionName 'SomeSubscription' -Raw
             $Result.Recommendation_Raw | Should -Not -BeNullOrEmpty
         }
 
         It 'Should return recommendations of a specified impact level' {
             $Result = Get-CostAdvisor -Impact Low,Medium
-            $Result.count | Should -Be 0
+            @($Result).count | Should -Be 0
         }
     }
 }
