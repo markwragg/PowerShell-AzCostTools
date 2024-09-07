@@ -13,3 +13,5 @@ $Private = @( Get-ChildItem -Path "$PSScriptRoot\Private\*.ps1" -Recurse )
 if (-not (Get-Module PSparklines -ListAvailable)) {
     Write-Warning "Dependency module 'PSparklines' not installed. Sparklines will not be generated. To fix execute: Install-Module PSparkines -Scope CurrentUser"
 }
+
+Export-ModuleMember -Function $Public.BaseName
