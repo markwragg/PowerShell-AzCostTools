@@ -1,5 +1,9 @@
 # Change Log
 
+## !Deploy
+
+* Fix: Implemented a workaround to retrieve costs for Enterprise Agreement subscriptions. The script will automatically attempt this if a Bad Request error is returned, or it can be forced by using the `-EaSubscription` switch with `Get-SubscriptionCost`. It assumes a modern type subscription, but if you have a legacy subscription you can also specify `-EaSubscriptionKind legacy`. Thanks to [@brianstringfellow](https://github.com/brianstringfellow) for the workaround, and [@Tiberriver256](https://github.com/Tiberriver256) for raising the issue under [#6](https://github.com/markwragg/PowerShell-AzCostTools/issues/6).
+
 ## [0.0.3] - 2024-06-02
 
 * Implemented `Get-CostAdvisor` to return Azure advisor cost recommendations for one or more subscriptions ([#5](https://github.com/markwragg/PowerShell-AzCostTools/issues/5)).
