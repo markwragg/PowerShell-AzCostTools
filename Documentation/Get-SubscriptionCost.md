@@ -7,7 +7,8 @@ Retrieves the Azure costs for one or more billing months for one or more subscri
 
 ```
 Get-SubscriptionCost [[-SubscriptionName] <String[]>] [[-BillingMonth] <DateTime>] [[-PreviousMonths] <Int32>]
- [[-SparkLineSize] <Int32>] [-ComparePrevious] [[-ComparePreviousOffset] <Int32>] [-Raw] [<CommonParameters>]
+ [[-SparkLineSize] <Int32>] [-ComparePrevious] [[-ComparePreviousOffset] <Int32>] [-EaSubscription]
+ [[-EaSubscriptionKind] <String>] [-Raw] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -166,6 +167,37 @@ Aliases: ComparePrevOffset
 Required: False
 Position: 5
 Default value: 0
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -EaSubscription
+Switch: Force use of alternative consumption collection script for Enterprise Agreement subscriptions.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -EaSubscriptionKind
+Specify the kind of Enterprise Agreement, modern or legacy.
+Default: modern.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 6
+Default value: Modern
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
