@@ -29,6 +29,13 @@ function Get-SubscriptionCost {
     .PARAMETER Raw
         Switch: Include the raw cost consumption data as a property on the returned object.
 
+
+    .PARAMETER EaSubscription
+        Switch: Force use of alternative consumption collection script for Enterprise Agreement subscriptions.
+
+    .PARAMETER EaSubscriptionKind
+        Specify the kind of Enterprise Agreement, modern or legacy. Default: modern.
+
     .EXAMPLE
         Get-SubscriptionCost
 
@@ -75,7 +82,7 @@ function Get-SubscriptionCost {
     #>
     [CmdletBinding()]
     param(
-        [Alias('Name','Subscription')]
+        [Alias('Name', 'Subscription')]
         [string[]]
         $SubscriptionName,
 
@@ -100,6 +107,13 @@ function Get-SubscriptionCost {
         $ComparePreviousOffset,
 
         [switch]
+        $EaSubscription,
+
+        [ValidateSet('Legacy', 'Modern')]
+        [string]
+        $EaSubscriptionKind = 'Modern',
+
+        [switch]
         $Raw
     )
     begin {
@@ -118,10 +132,13 @@ function Get-SubscriptionCost {
                 try {
                     $Consumption = $null
                     $PrevConsumption = $null
-
+                    $isEaSubscription = $EaSubscription
+                    
                     if ($PreAzContext.Subscription.Name -ne $Name) {
                         Set-AzContext -Subscription $Name -ErrorAction Stop | Out-Null
                     }
+
+                    $SubscriptionId = (Get-AzContext).Subscription.Id
 
                     for ($BillingMonthCount = 0; $BillingMonthCount -le $PreviousMonths; $BillingMonthCount++) {
 
@@ -139,7 +156,20 @@ function Get-SubscriptionCost {
                             else {
                                 Write-Progress -Activity "Getting data for billing period $BillingPeriod" -Status $Name
                                 
-                                Get-AzConsumptionUsageDetail -BillingPeriodName $BillingPeriod -ErrorAction Stop
+                                try {
+                                    if (-not $isEaSubscription) {
+                                        Get-AzConsumptionUsageDetail -BillingPeriodName $BillingPeriod -ErrorAction Stop
+                                    }
+                                }
+                                catch {
+                                    if ($_.Exception.Message -match 'BadRequest') {
+                                        $isEaSubscription = $true
+                                    }
+                                }
+
+                                if ($isEaSubscription) {
+                                    Get-EaConsumptionUsageDetail -SubscriptionId $SubscriptionId -BillingPeriodName $BillingPeriod -SubscriptionKind $EaSubscriptionKind -ErrorAction Stop
+                                }
                             }
                     
                             $Currency = ($Consumption | Select-Object -First 1).Currency
@@ -148,7 +178,7 @@ function Get-SubscriptionCost {
                             $DailyCost = Get-DailyCost -Consumption $Consumption
                             $DailyCostCalc = $DailyCost.Cost | Measure-Object -Maximum -Minimum -Average -Sum
                             $CostPerService = Get-ServiceCost -Consumption $Consumption
-                            $Budgets = Get-AzConsumptionBudget
+                            $Budgets = Get-AzConsumptionBudget -ErrorAction SilentlyContinue
 
                             $ActiveBudgets = foreach ($Budget in $Budgets) {
 
@@ -191,7 +221,20 @@ function Get-SubscriptionCost {
 
                                 Write-Progress -Activity "Getting data for previous billing period $PrevBillingPeriod" -Status $Name
 
-                                $PrevConsumption = Get-AzConsumptionUsageDetail -BillingPeriodName $PrevBillingPeriod -ErrorAction Stop
+                                try {
+                                    if (-not $isEaSubscription) {
+                                        $PrevConsumption = Get-AzConsumptionUsageDetail -BillingPeriodName $BillingPeriod -ErrorAction Stop
+                                    }
+                                }
+                                catch {
+                                    if ($_.Exception.Message -match 'BadRequest') {
+                                        $isEaSubscription = $true
+                                    }
+                                }
+
+                                if ($isEaSubscription) {
+                                    $PrevConsumption = Get-EaConsumptionUsageDetail -SubscriptionId $SubscriptionId -BillingPeriodName $BillingPeriod -SubscriptionKind $EaSubscriptionKind -ErrorAction Stop
+                                }
 
                                 $PrevCost = ($PrevConsumption | Measure-Object -Property PretaxCost -Sum).Sum
                                 $PrevDailyCost = Get-DailyCost -Consumption $PrevConsumption
