@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [0.0.5] - 2024-09-10
 
 * Fix: Updated the retrieval of Enterprise Agreement costs to return the `costInBillingCurrency` property (previously it was returning `CostInUSD` so was likely inaccurate for subscriptions billed in other currencies). Thanks [@Sebastianbuus](https://github.com/Sebastianbuus)!
 
