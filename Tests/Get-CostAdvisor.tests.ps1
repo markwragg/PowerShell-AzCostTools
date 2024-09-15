@@ -1,6 +1,6 @@
 Describe Get-CostAdvisor {
 
-    Import-Module $PSScriptRoot\..\AzCostTools
+    Import-Module (Join-Path $PSScriptRoot "/../AzCostTools")
     
     InModuleScope AzCostTools {
 
