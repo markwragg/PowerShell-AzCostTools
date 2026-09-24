@@ -37,7 +37,7 @@ function ConvertTo-ConsumptionRecord {
             SubscriptionName  = Get-RowValue $Row 'SubscriptionName'
             InstanceName      = Get-RowValue $Row 'ResourceId', 'ResourceName', 'InstanceId'
             ResourceGroupName = Get-RowValue $Row 'ResourceGroup', 'ResourceGroupName'
-            UsageStart        = if ($UsageStart) { [datetime]$UsageStart }
+            UsageStart        = if ($UsageStart) { [datetime]$UsageStart } else { $null }
             ConsumedService   = Get-RowValue $Row 'ConsumedService'
             Product           = Get-RowValue $Row 'ProductName', 'Product'
             Currency          = Get-RowValue $Row 'BillingCurrencyCode', 'BillingCurrency', 'Currency'
