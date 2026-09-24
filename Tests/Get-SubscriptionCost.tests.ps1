@@ -180,6 +180,10 @@ Describe Get-SubscriptionCost {
                 Mock Write-SparkLine
                 Mock Get-AzConsumptionBudget {}
 
+                # Pin this rather than relying on the real PSparklines module being installed on the
+                # agent -- the Sparkline assertion below needs the generation branch to be deterministic.
+                Mock Test-PSparklinesModule { $true }
+
                 Mock Get-AzConsumptionUsageDetail {
                     @(
                         [pscustomobject]@{
