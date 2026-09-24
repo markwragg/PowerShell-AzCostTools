@@ -20,7 +20,7 @@ Describe Get-ResourceGroupConsumption {
             It 'Makes a single unfiltered call' {
                 $Result = Get-ResourceGroupConsumption -BillingPeriod '202401' -IsEaSubscription $false -EaSubscriptionKind 'Modern'
 
-                $Result.Consumption.Count | Should -Be 1
+                @($Result.Consumption).Count | Should -Be 1
                 $Result.IsEaSubscription | Should -Be $false
                 Should -Invoke Get-AzConsumptionUsageDetail -Times 1 -Exactly -ParameterFilter { -not $ResourceGroup }
             }
@@ -37,7 +37,7 @@ Describe Get-ResourceGroupConsumption {
             It 'Makes one server-side filtered call per resource group name' {
                 $Result = Get-ResourceGroupConsumption -BillingPeriod '202401' -ResourceGroupName 'RGA', 'RGB' -IsEaSubscription $false -EaSubscriptionKind 'Modern'
 
-                $Result.Consumption.Count | Should -Be 2
+                @($Result.Consumption).Count | Should -Be 2
                 Should -Invoke Get-AzConsumptionUsageDetail -Times 1 -Exactly -ParameterFilter { $ResourceGroup -eq 'RGA' }
                 Should -Invoke Get-AzConsumptionUsageDetail -Times 1 -Exactly -ParameterFilter { $ResourceGroup -eq 'RGB' }
             }
@@ -67,7 +67,7 @@ Describe Get-ResourceGroupConsumption {
                 $Result = Get-ResourceGroupConsumption -BillingPeriod '202401' -ResourceGroupName 'RGA', 'RGB' -IsEaSubscription $false -EaSubscriptionKind 'Modern'
 
                 $Result.IsEaSubscription | Should -Be $true
-                $Result.Consumption.Count | Should -Be 2
+                @($Result.Consumption).Count | Should -Be 2
                 Should -Invoke Get-EaConsumptionUsageDetail -Times 1 -Exactly
             }
         }
@@ -88,14 +88,14 @@ Describe Get-ResourceGroupConsumption {
             It 'Makes a single unfiltered EA pull rather than one per resource group' {
                 $Result = Get-ResourceGroupConsumption -BillingPeriod '202401' -ResourceGroupName 'RGA', 'RGB' -IsEaSubscription $true -EaSubscriptionKind 'Modern'
 
-                $Result.Consumption.Count | Should -Be 2
+                @($Result.Consumption).Count | Should -Be 2
                 Should -Invoke Get-EaConsumptionUsageDetail -Times 1 -Exactly
             }
 
             It 'Filters the unfiltered EA pull client-side to only the requested resource group' {
                 $Result = Get-ResourceGroupConsumption -BillingPeriod '202401' -ResourceGroupName 'RGA' -IsEaSubscription $true -EaSubscriptionKind 'Modern'
 
-                $Result.Consumption.Count | Should -Be 1
+                @($Result.Consumption).Count | Should -Be 1
                 $Result.Consumption.InstanceId | Should -Be '/subscriptions/xxxx/resourceGroups/RGA/providers/Microsoft.Storage/storageAccounts/A'
             }
         }
