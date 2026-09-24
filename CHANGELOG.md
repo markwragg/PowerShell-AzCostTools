@@ -2,9 +2,10 @@
 
 ## [Unreleased]
 
-* Implemented `Export-AzCostData` and `Import-AzCostData` to save cost data returned by `Get-SubscriptionCost`/`Get-StorageCost`/`Get-CostAdvisor` to disk and reload it later for analysis/comparison, without needing to re-query Azure.
-* Implemented `Import-AzCostExport` to load Azure Cost Management "Actual Cost" scheduled export data directly from a Storage Account container, returned in the same shape as `Get-SubscriptionCost`.
 * Implemented `Get-ResourceGroupCost` to retrieve Azure cost data for one or more Resource Groups and compare to the previous month.
+* Implemented `Export-CostData` and `Import-CostData` to save cost data returned by `Get-SubscriptionCost`/`Get-ResourceGroupCost`/`Get-StorageCost`/`Get-CostAdvisor` to disk and reload it later for analysis/comparison, without needing to re-query Azure.
+* Implemented `Import-CostExport` to load Azure Cost Management "Actual Cost" scheduled export data directly from a Storage Account container, returned in the same shape as `Get-SubscriptionCost`.
+* Fix: `Get-SubscriptionCost -ComparePrevious` was requesting the current billing period twice instead of also requesting the previous billing period, so `PrevCost`/`CostChange`/`CostChange_Pct` were comparing the current month against itself.
 
 ## [0.0.5] - 2024-09-10
 

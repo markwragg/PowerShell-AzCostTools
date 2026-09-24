@@ -1,25 +1,25 @@
-function Import-AzCostData {
+function Import-CostData {
     <#
     .SYNOPSIS
-        Loads cost data previously saved with Export-AzCostData.
+        Loads cost data previously saved with Export-CostData.
 
     .DESCRIPTION
-        Reloads cost data that was saved to disk with Export-AzCostData. The returned objects are equivalent to the
+        Reloads cost data that was saved to disk with Export-CostData. The returned objects are equivalent to the
         original output of Get-SubscriptionCost/Get-StorageCost/Get-CostAdvisor and can be piped directly to Show-CostAnalysis
-        or Export-AzCostData again.
+        or Export-CostData again.
 
     .PARAMETER Path
-        The JSON file previously created by Export-AzCostData. If a directory is specified instead, every *.json file within it is imported.
+        The JSON file previously created by Export-CostData. If a directory is specified instead, every *.json file within it is imported.
 
     .EXAMPLE
-        Import-AzCostData -Path C:\Cost\SubscriptionCost.json | Show-CostAnalysis
+        Import-CostData -Path C:\Cost\SubscriptionCost.json | Show-CostAnalysis
 
         Description
         -----------
         Loads previously saved cost data and pipes it to Show-CostAnalysis.
 
     .EXAMPLE
-        Import-AzCostData -Path C:\Cost
+        Import-CostData -Path C:\Cost
 
         Description
         -----------

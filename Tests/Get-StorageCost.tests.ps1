@@ -280,5 +280,72 @@ Describe Get-StorageCost {
                 Should -Invoke Write-Error -Times 1 -Exactly
             }
         }
+
+        Context 'When the Az consumption cmdlet fails with a BadRequest for an Enterprise Agreement subscription' {
+
+            BeforeAll {
+                function Get-AzConsumptionUsageDetail {}
+                function Get-EaConsumptionUsageDetail {}
+                function Get-Sparkline {}
+                function Write-Sparkline {}
+
+                Mock Write-Progress {}
+                Mock Get-Sparkline
+                Mock Write-SparkLine
+
+                Mock Get-EaConsumptionUsageDetail {
+                    @(
+                        [pscustomobject]@{
+                            AccountName      = 'SomeAccount'
+                            InstanceName     = 'SomeAccount'
+                            ConsumedService  = 'Microsoft.Storage'
+                            Currency         = 'EUR'
+                            SubscriptionName = 'SomeSubscription'
+                            PretaxCost       = 15
+                            UsageStart       = (Get-Date '02/01/2024 00:00:00')
+                        }
+                    )
+                }
+            }
+
+            It 'Falls back to Get-EaConsumptionUsageDetail for the current billing period' {
+                Mock Get-AzConsumptionUsageDetail { throw [System.Exception]::new('Response status code does not indicate success: 400 (BadRequest).') }
+
+                $Result = Get-StorageCost -AccountName 'SomeAccount'
+
+                $Result.Cost | Should -Be 15
+                Should -Invoke Get-EaConsumptionUsageDetail -Times 1 -Exactly
+            }
+
+            It 'Falls back to Get-EaConsumptionUsageDetail for the previous billing period when only the previous-period call fails' {
+                $script:CallCount = 0
+
+                Mock Get-AzConsumptionUsageDetail {
+                    $script:CallCount++
+                    if ($script:CallCount -eq 1) {
+                        @(
+                            [pscustomobject]@{
+                                AccountName      = 'SomeAccount'
+                                InstanceName     = 'SomeAccount'
+                                ConsumedService  = 'Microsoft.Storage'
+                                Currency         = 'EUR'
+                                SubscriptionName = 'SomeSubscription'
+                                PretaxCost       = 10
+                                UsageStart       = (Get-Date '02/01/2024 00:00:00')
+                            }
+                        )
+                    }
+                    else {
+                        throw [System.Exception]::new('Response status code does not indicate success: 400 (BadRequest).')
+                    }
+                }
+
+                $Result = Get-StorageCost -AccountName 'SomeAccount' -ComparePrevious
+
+                $Result.Cost | Should -Be 10
+                $Result.PrevCost | Should -Be 15
+                Should -Invoke Get-EaConsumptionUsageDetail -Times 1 -Exactly
+            }
+        }
     }
 }

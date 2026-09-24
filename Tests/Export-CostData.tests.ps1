@@ -1,4 +1,4 @@
-Describe Export-AzCostData {
+Describe Export-CostData {
 
     Import-Module (Join-Path $PSScriptRoot "/../AzCostTools")
 
@@ -14,7 +14,7 @@ Describe Export-AzCostData {
             $Path = Join-Path $TestDrive 'cost.json'
 
             # Act
-            $Cost | Export-AzCostData -Path $Path
+            $Cost | Export-CostData -Path $Path
 
             # Assert
             Test-Path $Path | Should -Be $true
@@ -36,10 +36,10 @@ Describe Export-AzCostData {
             New-Item -Path $Directory -ItemType Directory -Force | Out-Null
 
             # Act
-            $Cost | Export-AzCostData -Path $Directory
+            $Cost | Export-CostData -Path $Directory
 
             # Assert
-            @(Get-ChildItem -Path $Directory -Filter 'AzCostData_*.json').Count | Should -Be 1
+            @(Get-ChildItem -Path $Directory -Filter 'CostData_*.json').Count | Should -Be 1
         }
     }
 
@@ -54,7 +54,7 @@ Describe Export-AzCostData {
             $Path = Join-Path $TestDrive 'multi.json'
 
             # Act
-            $Cost | Export-AzCostData -Path $Path
+            $Cost | Export-CostData -Path $Path
 
             # Assert
             $Parsed = Get-Content $Path -Raw | ConvertFrom-Json

@@ -4,7 +4,7 @@ function ConvertTo-ConsumptionRecord {
         Converts one row from an Azure Cost Management scheduled export CSV into the same shape returned by Get-AzConsumptionUsageDetail.
 
     .DESCRIPTION
-        Used by Import-AzCostExport to normalise rows read from a Cost Management "Actual Cost" export so they can be
+        Used by Import-CostExport to normalise rows read from a Cost Management "Actual Cost" export so they can be
         aggregated by the same private helpers (Get-DailyCost, Get-ServiceCost, New-CostSummaryObject) used for live
         Get-AzConsumptionUsageDetail data -- the same normalisation approach Get-EaConsumptionUsageDetail already uses
         for Enterprise Agreement subscriptions. Column names are resolved defensively (trying several known aliases)
@@ -19,15 +19,17 @@ function ConvertTo-ConsumptionRecord {
         [pscustomobject]
         $Row
     )
-    process {
+    begin {
         function Get-RowValue ($Row, $Names) {
             foreach ($ColumnName in $Names) {
-                if ($Row.PSObject.Properties.Name -contains $ColumnName -and $Row.$ColumnName) {
-                    return $Row.$ColumnName
+                $Property = $Row.PSObject.Properties[$ColumnName]
+                if ($Property -and $Property.Value) {
+                    return $Property.Value
                 }
             }
         }
-
+    }
+    process {
         $UsageStart = Get-RowValue $Row 'Date', 'UsageDateTime', 'UsageStart'
         $PreTaxCost = Get-RowValue $Row 'CostInBillingCurrency', 'Cost', 'PreTaxCost'
         $UsageQuantity = Get-RowValue $Row 'Quantity', 'UsageQuantity'

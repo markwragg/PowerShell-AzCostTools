@@ -4,7 +4,7 @@ function Restore-CostObjectType {
         Restores the PSTypeName and [datetime] typing of a cost object that has been round-tripped through ConvertTo-Json/ConvertFrom-Json.
 
     .DESCRIPTION
-        Used by Import-AzCostData. JSON serialization drops the PSTypeName (it isn't a real property) and turns [datetime]
+        Used by Import-CostData. JSON serialization drops the PSTypeName (it isn't a real property) and turns [datetime]
         properties into strings (or, under Windows PowerShell, into an object with a '/Date(<ms>)/' value), which breaks
         Show-CostAnalysis (it calls .Date.ToShortDateString() directly) and the module's *.Format.ps1xml views (which are
         selected by type name). This function recursively walks the object graph (including nested arrays such as

@@ -33,6 +33,12 @@ function Get-ResourceGroupCost {
     .PARAMETER Raw
         Switch: Include the raw cost consumption data as a property on the returned object.
 
+    .PARAMETER EaSubscription
+        Switch: Force use of alternative consumption collection script for Enterprise Agreement subscriptions.
+
+    .PARAMETER EaSubscriptionKind
+        Specify the kind of Enterprise Agreement, modern or legacy. Default: modern.
+
     .EXAMPLE
         Get-ResourceGroupCost
 
@@ -107,9 +113,18 @@ function Get-ResourceGroupCost {
         $ExcludeSparklines,
 
         [switch]
-        $Raw
+        $Raw,
+
+        [switch]
+        $EaSubscription,
+
+        [ValidateSet('Legacy', 'Modern')]
+        [string]
+        $EaSubscriptionKind = 'Modern'
     )
     process {
+
+        $isEaSubscription = $EaSubscription
 
         for ($BillingMonthCount = 0; $BillingMonthCount -le $PreviousMonths; $BillingMonthCount++) {
 
@@ -124,7 +139,24 @@ function Get-ResourceGroupCost {
                 }
                 else {
                     Write-Progress -Activity "Getting data for billing period $BillingPeriod" -Status 'ResourceGroups'
-                    Get-AzConsumptionUsageDetail -BillingPeriodName $BillingPeriod
+
+                    try {
+                        if (-not $isEaSubscription) {
+                            Get-AzConsumptionUsageDetail -BillingPeriodName $BillingPeriod -ErrorAction Stop
+                        }
+                    }
+                    catch {
+                        if ($_.Exception.Message -match 'BadRequest') {
+                            $isEaSubscription = $true
+                        }
+                        else {
+                            throw
+                        }
+                    }
+
+                    if ($isEaSubscription) {
+                        Get-EaConsumptionUsageDetail -BillingPeriodName $BillingPeriod -SubscriptionKind $EaSubscriptionKind -ErrorAction Stop
+                    }
                 }
 
                 if ($ComparePrevious) {
@@ -132,7 +164,24 @@ function Get-ResourceGroupCost {
                     $PrevBillingPeriod = $PrevBillingDate.ToString('yyyyMM')
 
                     Write-Progress -Activity "Getting data for previous billing period $PrevBillingPeriod" -Status 'ResourceGroups'
-                    $PrevConsumption = Get-AzConsumptionUsageDetail -BillingPeriodName $PrevBillingPeriod
+
+                    try {
+                        if (-not $isEaSubscription) {
+                            $PrevConsumption = Get-AzConsumptionUsageDetail -BillingPeriodName $PrevBillingPeriod -ErrorAction Stop
+                        }
+                    }
+                    catch {
+                        if ($_.Exception.Message -match 'BadRequest') {
+                            $isEaSubscription = $true
+                        }
+                        else {
+                            throw
+                        }
+                    }
+
+                    if ($isEaSubscription) {
+                        $PrevConsumption = Get-EaConsumptionUsageDetail -BillingPeriodName $PrevBillingPeriod -SubscriptionKind $EaSubscriptionKind -ErrorAction Stop
+                    }
                 }
 
                 if (-not $ResourceGroupName) {

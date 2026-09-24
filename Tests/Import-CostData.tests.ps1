@@ -1,4 +1,4 @@
-Describe Import-AzCostData {
+Describe Import-CostData {
 
     Import-Module (Join-Path $PSScriptRoot "/../AzCostTools")
 
@@ -19,12 +19,12 @@ Describe Import-AzCostData {
                     [pscustomobject]@{ Date = (Get-Date '2024-01-01'); Cost = 10 },
                     [pscustomobject]@{ Date = (Get-Date '2024-01-02'); Cost = 20 }
                 )
-            } | Export-AzCostData -Path $Path
+            } | Export-CostData -Path $Path
         }
 
         It 'Restores the type name and Date typing' {
             # Act
-            $Result = Import-AzCostData -Path $Path
+            $Result = Import-CostData -Path $Path
 
             # Assert
             $Result.PSObject.TypeNames[0] | Should -Be 'Subscription.Cost'
@@ -43,13 +43,13 @@ Describe Import-AzCostData {
             $Directory = Join-Path $TestDrive 'MultiFile'
             New-Item -Path $Directory -ItemType Directory -Force | Out-Null
 
-            [pscustomobject]@{ PSTypeName = 'Subscription.Cost'; Name = 'SubA' } | Export-AzCostData -Path (Join-Path $Directory 'a.json')
-            [pscustomobject]@{ PSTypeName = 'Subscription.Cost'; Name = 'SubB' } | Export-AzCostData -Path (Join-Path $Directory 'b.json')
+            [pscustomobject]@{ PSTypeName = 'Subscription.Cost'; Name = 'SubA' } | Export-CostData -Path (Join-Path $Directory 'a.json')
+            [pscustomobject]@{ PSTypeName = 'Subscription.Cost'; Name = 'SubB' } | Export-CostData -Path (Join-Path $Directory 'b.json')
         }
 
         It 'Imports and concatenates every JSON file in the directory' {
             # Act
-            $Result = @(Import-AzCostData -Path $Directory)
+            $Result = @(Import-CostData -Path $Directory)
 
             # Assert
             $Result.Count | Should -Be 2

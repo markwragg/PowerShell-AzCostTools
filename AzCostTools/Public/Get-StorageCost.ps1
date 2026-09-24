@@ -32,6 +32,12 @@ function Get-StorageCost {
     .PARAMETER Raw
         Switch: Include the raw cost consumption data as a property on the returned object.
 
+    .PARAMETER EaSubscription
+        Switch: Force use of alternative consumption collection script for Enterprise Agreement subscriptions.
+
+    .PARAMETER EaSubscriptionKind
+        Specify the kind of Enterprise Agreement, modern or legacy. Default: modern.
+
     .EXAMPLE
         Get-StorageCost
 
@@ -106,32 +112,83 @@ function Get-StorageCost {
         $ExcludeSparklines,
 
         [switch]
-        $Raw
+        $Raw,
+
+        [switch]
+        $EaSubscription,
+
+        [ValidateSet('Legacy', 'Modern')]
+        [string]
+        $EaSubscriptionKind = 'Modern'
     )
     process {
-        
+
+        $isEaSubscription = $EaSubscription
+
         for ($BillingMonthCount = 0; $BillingMonthCount -le $PreviousMonths; $BillingMonthCount++) {
 
             $BillingDate = (Get-Date $BillingMonth).AddMonths(-$BillingMonthCount)
             $BillingPeriod = $BillingDate.ToString('yyyyMM')
 
             if (-not $ComparePreviousOffset) { $ComparePreviousOffset = 1 }
-            
+
             try {
                 $StorageConsumption = if ($PrevStorageConsumption -and $ComparePreviousOffset -eq 1) {
                     $PrevStorageConsumption
                 }
                 else {
                     Write-Progress -Activity "Getting data for billing period $BillingPeriod" -Status 'Microsoft.Storage'
-                    Get-AzConsumptionUsageDetail -BillingPeriodName $BillingPeriod | Where-Object { $_.ConsumedService -eq 'Microsoft.Storage' }
+
+                    $RawConsumption = $null
+
+                    try {
+                        if (-not $isEaSubscription) {
+                            $RawConsumption = Get-AzConsumptionUsageDetail -BillingPeriodName $BillingPeriod -ErrorAction Stop
+                        }
+                    }
+                    catch {
+                        if ($_.Exception.Message -match 'BadRequest') {
+                            $isEaSubscription = $true
+                        }
+                        else {
+                            throw
+                        }
+                    }
+
+                    if ($isEaSubscription) {
+                        $RawConsumption = Get-EaConsumptionUsageDetail -BillingPeriodName $BillingPeriod -SubscriptionKind $EaSubscriptionKind -ErrorAction Stop
+                    }
+
+                    $RawConsumption | Where-Object { $_.ConsumedService -eq 'Microsoft.Storage' }
                 }
 
                 if ($ComparePrevious) {
                     $PrevBillingDate = (Get-Date $BillingMonth).AddMonths( - ($ComparePreviousOffset + $BillingMonthCount))
                     $PrevBillingPeriod = $PrevBillingDate.ToString('yyyyMM')
 
-                    $PrevStorageConsumption = Get-AzConsumptionUsageDetail -BillingPeriodName $PrevBillingPeriod | Where-Object { $_.ConsumedService -eq 'Microsoft.Storage' }
                     Write-Progress -Activity "Getting data for previous billing period $PrevBillingPeriod" -Status 'Microsoft.Storage'
+
+                    $PrevRawConsumption = $null
+
+                    try {
+                        if (-not $isEaSubscription) {
+                            $PrevRawConsumption = Get-AzConsumptionUsageDetail -BillingPeriodName $PrevBillingPeriod -ErrorAction Stop
+                        }
+                    }
+                    catch {
+                        if ($_.Exception.Message -match 'BadRequest') {
+                            $isEaSubscription = $true
+                        }
+                        else {
+                            throw
+                        }
+                    }
+
+                    if ($isEaSubscription) {
+                        $PrevRawConsumption = Get-EaConsumptionUsageDetail -BillingPeriodName $PrevBillingPeriod -SubscriptionKind $EaSubscriptionKind -ErrorAction Stop
+                    }
+
+                    $PrevStorageConsumption = $PrevRawConsumption | Where-Object { $_.ConsumedService -eq 'Microsoft.Storage' }
                 }
 
                 if (-not $AccountName) {

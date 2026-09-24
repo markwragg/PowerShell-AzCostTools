@@ -140,6 +140,10 @@ function Get-SubscriptionCost {
 
                     $SubscriptionId = (Get-AzContext).Subscription.Id
 
+                    # Fetched once per subscription and reused across billing months below -- Get-AzConsumptionBudget
+                    # is a network call that returns the same result for every month in this subscription's context.
+                    $Budgets = Get-AzConsumptionBudget -ErrorAction SilentlyContinue
+
                     for ($BillingMonthCount = 0; $BillingMonthCount -le $PreviousMonths; $BillingMonthCount++) {
 
                         $BillingDate = (Get-Date $BillingMonth).AddMonths(-$BillingMonthCount)
@@ -172,7 +176,7 @@ function Get-SubscriptionCost {
                                 }
                             }
                     
-                            $CostObject = New-CostSummaryObject -Name $Name -BillingDate $BillingDate -Consumption $Consumption -SparkLineSize $SparkLineSize
+                            $CostObject = New-CostSummaryObject -Name $Name -BillingDate $BillingDate -Consumption $Consumption -SparkLineSize $SparkLineSize -Budgets $Budgets
 
                             if ($ComparePrevious) {
 
@@ -180,7 +184,7 @@ function Get-SubscriptionCost {
 
                                 try {
                                     if (-not $isEaSubscription) {
-                                        $PrevConsumption = Get-AzConsumptionUsageDetail -BillingPeriodName $BillingPeriod -ErrorAction Stop
+                                        $PrevConsumption = Get-AzConsumptionUsageDetail -BillingPeriodName $PrevBillingPeriod -ErrorAction Stop
                                     }
                                 }
                                 catch {
@@ -190,7 +194,7 @@ function Get-SubscriptionCost {
                                 }
 
                                 if ($isEaSubscription) {
-                                    $PrevConsumption = Get-EaConsumptionUsageDetail -SubscriptionId $SubscriptionId -BillingPeriodName $BillingPeriod -SubscriptionKind $EaSubscriptionKind -ErrorAction Stop
+                                    $PrevConsumption = Get-EaConsumptionUsageDetail -SubscriptionId $SubscriptionId -BillingPeriodName $PrevBillingPeriod -SubscriptionKind $EaSubscriptionKind -ErrorAction Stop
                                 }
 
                                 $PrevCost = ($PrevConsumption | Measure-Object -Property PretaxCost -Sum).Sum

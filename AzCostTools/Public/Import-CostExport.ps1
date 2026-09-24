@@ -1,13 +1,13 @@
-function Import-AzCostExport {
+function Import-CostExport {
     <#
     .SYNOPSIS
         Loads Azure cost data from a Cost Management scheduled export held in a Storage Account.
 
     .DESCRIPTION
         Azure Cost Management can be configured (in the Azure Portal, under Cost Management > Exports) to routinely write
-        "Actual Cost" CSV exports to a Storage Account container. Import-AzCostExport reads the export file/s for a given
+        "Actual Cost" CSV exports to a Storage Account container. Import-CostExport reads the export file/s for a given
         billing month directly from that container, and aggregates them into the same object shape returned by
-        Get-SubscriptionCost, so the result can be piped to Show-CostAnalysis or Export-AzCostData like any other cost data
+        Get-SubscriptionCost, so the result can be piped to Show-CostAnalysis or Export-CostData like any other cost data
         -- without needing to query the Consumption API at all.
 
     .PARAMETER StorageAccountName
@@ -35,14 +35,14 @@ function Import-AzCostExport {
         Switch: Include the mapped export rows as a property on the returned object.
 
     .EXAMPLE
-        Import-AzCostExport -StorageAccountName 'mycostexports' -ResourceGroupName 'rg-cost' -ContainerName 'costexports'
+        Import-CostExport -StorageAccountName 'mycostexports' -ResourceGroupName 'rg-cost' -ContainerName 'costexports'
 
         Description
         -----------
         Loads cost data for the current billing month from the specified Storage Account container.
 
     .EXAMPLE
-        Import-AzCostExport -StorageAccountName 'mycostexports' -ResourceGroupName 'rg-cost' -ContainerName 'costexports' -BillingMonth 01/2024 -PreviousMonths 3
+        Import-CostExport -StorageAccountName 'mycostexports' -ResourceGroupName 'rg-cost' -ContainerName 'costexports' -BillingMonth 01/2024 -PreviousMonths 3
 
         Description
         -----------
@@ -129,12 +129,16 @@ function Import-AzCostExport {
 
             $Groups = $ConsumptionRecords | Group-Object -Property SubscriptionName, { $_.UsageStart.ToString('yyyyMM') }
 
+            # Fetched once and reused for every group below -- the Az context doesn't change between groups, so
+            # Get-AzConsumptionBudget would otherwise be called (and return the same result) once per group.
+            $Budgets = Get-AzConsumptionBudget -ErrorAction SilentlyContinue
+
             foreach ($Group in $Groups) {
 
                 $Name = $Group.Group[0].SubscriptionName
                 $BillingDate = $Group.Group[0].UsageStart
 
-                $CostObject = New-CostSummaryObject -Name $Name -BillingDate $BillingDate -Consumption $Group.Group -SparkLineSize $SparkLineSize
+                $CostObject = New-CostSummaryObject -Name $Name -BillingDate $BillingDate -Consumption $Group.Group -SparkLineSize $SparkLineSize -Budgets $Budgets
 
                 if ($Raw) {
                     $CostObject['Consumption_Raw'] = $Group.Group

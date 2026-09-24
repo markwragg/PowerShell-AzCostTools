@@ -1,4 +1,4 @@
-Describe Import-AzCostExport {
+Describe Import-CostExport {
 
     Import-Module (Join-Path $PSScriptRoot "/../AzCostTools")
 
@@ -40,7 +40,7 @@ xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx,SomeSubscription,/subscriptions/xxxx/resour
 
         It 'Downloads and aggregates the matching export blob(s) into a Subscription.Cost object' {
             # Act
-            $Result = Import-AzCostExport -StorageAccountName 'mycostexports' -ResourceGroupName 'rg-cost' -ContainerName 'costexports' -BillingMonth '01/2024'
+            $Result = Import-CostExport -StorageAccountName 'mycostexports' -ResourceGroupName 'rg-cost' -ContainerName 'costexports' -BillingMonth '01/2024'
 
             # Assert
             $Result.PSObject.TypeNames[0] | Should -Be 'Subscription.Cost'
@@ -54,7 +54,7 @@ xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx,SomeSubscription,/subscriptions/xxxx/resour
 
         It 'Includes the mapped raw consumption records when -Raw is specified' {
             # Act
-            $Result = Import-AzCostExport -StorageAccountName 'mycostexports' -ResourceGroupName 'rg-cost' -ContainerName 'costexports' -BillingMonth '01/2024' -Raw
+            $Result = Import-CostExport -StorageAccountName 'mycostexports' -ResourceGroupName 'rg-cost' -ContainerName 'costexports' -BillingMonth '01/2024' -Raw
 
             # Assert
             $Result.Consumption_Raw.Count | Should -Be 2
@@ -69,7 +69,7 @@ xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx,SomeSubscription,/subscriptions/xxxx/resour
             }
 
             # Act / Assert
-            Import-AzCostExport -StorageAccountName 'mycostexports' -ResourceGroupName 'rg-cost' -ContainerName 'costexports' -BillingMonth '01/2024' -ErrorVariable ImportError -ErrorAction SilentlyContinue
+            Import-CostExport -StorageAccountName 'mycostexports' -ResourceGroupName 'rg-cost' -ContainerName 'costexports' -BillingMonth '01/2024' -ErrorVariable ImportError -ErrorAction SilentlyContinue
 
             $ImportError | Should -Not -BeNullOrEmpty
             Should -Invoke Get-AzStorageBlobContent -Times 0 -Exactly
@@ -80,7 +80,7 @@ xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx,SomeSubscription,/subscriptions/xxxx/resour
             Mock Test-AzStorageModule { $false }
 
             # Act
-            Import-AzCostExport -StorageAccountName 'mycostexports' -ResourceGroupName 'rg-cost' -ContainerName 'costexports' -ErrorAction SilentlyContinue -ErrorVariable ImportError
+            Import-CostExport -StorageAccountName 'mycostexports' -ResourceGroupName 'rg-cost' -ContainerName 'costexports' -ErrorAction SilentlyContinue -ErrorVariable ImportError
 
             # Assert
             $ImportError | Should -Not -BeNullOrEmpty

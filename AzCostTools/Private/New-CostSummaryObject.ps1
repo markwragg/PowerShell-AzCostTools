@@ -4,7 +4,7 @@ function New-CostSummaryObject {
         Builds a Subscription.Cost object by aggregating a set of consumption records for a billing period.
 
     .DESCRIPTION
-        Shared aggregation logic used by Get-SubscriptionCost (querying Azure directly) and Import-AzCostExport
+        Shared aggregation logic used by Get-SubscriptionCost (querying Azure directly) and Import-CostExport
         (reading a Cost Management scheduled export from a Storage Account), so both produce an identically shaped
         Subscription.Cost object that works with Show-CostAnalysis and the Subscription.Cost.Format.ps1xml view.
 
@@ -35,7 +35,13 @@ function New-CostSummaryObject {
 
         [ValidateRange(1, 10)]
         [int]
-        $SparkLineSize = 1
+        $SparkLineSize = 1,
+
+        # Pre-fetched budgets for the current Az context. Callers that build multiple Subscription.Cost objects
+        # for the same context (e.g. several billing months) should fetch this once and pass it in, rather than
+        # letting it default -- Get-AzConsumptionBudget is a network call and returns the same result every time
+        # for a given context.
+        $Budgets
     )
 
     $BillingPeriod = $BillingDate.ToString('yyyyMM')
@@ -46,7 +52,10 @@ function New-CostSummaryObject {
     $DailyCost = @(Get-DailyCost -Consumption $Consumption)
     $DailyCostCalc = $DailyCost.Cost | Measure-Object -Maximum -Minimum -Average -Sum
     $CostPerService = @(Get-ServiceCost -Consumption $Consumption)
-    $Budgets = Get-AzConsumptionBudget -ErrorAction SilentlyContinue
+
+    if (-not $PSBoundParameters.ContainsKey('Budgets')) {
+        $Budgets = Get-AzConsumptionBudget -ErrorAction SilentlyContinue
+    }
 
     $ActiveBudgets = @(foreach ($Budget in $Budgets) {
 

@@ -9,11 +9,11 @@ Describe Get-SubscriptionCost {
             function Get-AzContext {}
             function Get-AzSubscription {}
             function Set-AzContext {}
-            function Get-AzConsumptionUsageDetail {}
+            function Get-AzConsumptionUsageDetail ($BillingPeriodName) {}
             function Get-AzConsumptionBudget {}
             function Get-Sparkline {}
             function Write-Sparkline {}
-            
+
             Mock Get-AzContext {
                 @{
                     Name           = 'SomeExistingSubscription'
@@ -155,6 +155,50 @@ Describe Get-SubscriptionCost {
         It 'Should return costs for the a specified subscription and compare to previous and return the raw consumption data' {
             $Result = Get-SubscriptionCost -SubscriptionName 'SomeSubscription' -ComparePrevious -Raw
             $Result.Cost | Should -Be 30
+        }
+    }
+
+    InModuleScope AzCostTools {
+
+        Context 'BillingPeriodName arguments' {
+
+            BeforeAll {
+                function Get-AzContext {}
+                function Get-AzSubscription {}
+                function Set-AzContext {}
+                function Get-AzConsumptionUsageDetail ($BillingPeriodName) {}
+                function Get-AzConsumptionBudget {}
+
+                Mock Get-AzContext {
+                    @{ Subscription = @{ Id = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' } }
+                }
+                Mock Get-AzSubscription {
+                    @{ Name = 'SomeSubscription' }
+                }
+                Mock Set-AzContext {}
+                Mock Write-Progress {}
+                Mock Get-AzConsumptionBudget {}
+            }
+
+            It 'Requests the current and previous billing periods using their own distinct BillingPeriodName' {
+                $script:RequestedBillingPeriods = [System.Collections.Generic.List[string]]::new()
+
+                Mock Get-AzConsumptionUsageDetail {
+                    $script:RequestedBillingPeriods.Add($BillingPeriodName)
+                    @(
+                        [pscustomobject]@{
+                            ConsumedService = 'Microsoft.Compute'
+                            Currency        = 'EUR'
+                            PretaxCost      = 10
+                            UsageStart      = (Get-Date '02/01/2024 00:00:00')
+                        }
+                    )
+                }
+
+                Get-SubscriptionCost -SubscriptionName 'SomeSubscription' -BillingMonth '02/2024' -ComparePrevious | Out-Null
+
+                $script:RequestedBillingPeriods | Should -Be @('202402', '202401')
+            }
         }
     }
 
