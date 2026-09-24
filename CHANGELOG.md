@@ -6,6 +6,7 @@
 * Implemented `Export-CostData` and `Import-CostData` to save cost data returned by `Get-SubscriptionCost`/`Get-ResourceGroupCost`/`Get-StorageCost`/`Get-CostAdvisor` to disk and reload it later for analysis/comparison, without needing to re-query Azure.
 * Implemented `Import-CostExport` to load Azure Cost Management "Actual Cost" scheduled export data directly from a Storage Account container, returned in the same shape as `Get-SubscriptionCost`.
 * Fix: `Get-SubscriptionCost -ComparePrevious` was requesting the current billing period twice instead of also requesting the previous billing period, so `PrevCost`/`CostChange`/`CostChange_Pct` were comparing the current month against itself.
+* Fix: `Get-EaConsumptionUsageDetail` (the Enterprise Agreement fallback used when `Get-AzConsumptionUsageDetail` returns a `BadRequest`) didn't return an `InstanceId` property, so `Get-ResourceGroupCost` run without `-ResourceGroupName` had nothing to auto-discover resource group names from and silently returned no results for EA subscriptions.
 
 ## [0.0.5] - 2024-09-10
 

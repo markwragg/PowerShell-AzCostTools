@@ -5,10 +5,14 @@ Describe Get-ResourceGroupCost {
     InModuleScope AzCostTools {
 
         BeforeAll {
-            function Get-AzConsumptionUsageDetail {}
+            function Get-AzContext {}
+            function Get-AzConsumptionUsageDetail ($BillingPeriodName, $ResourceGroup) {}
             function Get-Sparkline {}
             function Write-Sparkline {}
 
+            Mock Get-AzContext {
+                @{ Subscription = @{ Name = 'SomeSubscription'; Id = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' } }
+            }
             Mock Write-Progress {}
 
             Mock Get-AzConsumptionUsageDetail {
@@ -98,6 +102,19 @@ Describe Get-ResourceGroupCost {
             $Result.Count | Should -Be 2
             ($Result | Where-Object ResourceGroupName -EQ 'AnotherResourceGroup').Cost | Should -Be 0
         }
+
+        It 'Filters server-side with -ResourceGroup when one or more resource group names are specified' {
+            Get-ResourceGroupCost -ResourceGroupName 'SomeResourceGroup', 'AnotherResourceGroup' | Out-Null
+
+            Should -Invoke Get-AzConsumptionUsageDetail -Times 1 -Exactly -ParameterFilter { $ResourceGroup -eq 'SomeResourceGroup' }
+            Should -Invoke Get-AzConsumptionUsageDetail -Times 1 -Exactly -ParameterFilter { $ResourceGroup -eq 'AnotherResourceGroup' }
+        }
+
+        It 'Makes a single unfiltered call when no resource group name is specified' {
+            Get-ResourceGroupCost | Out-Null
+
+            Should -Invoke Get-AzConsumptionUsageDetail -Times 1 -Exactly -ParameterFilter { -not $ResourceGroup }
+        }
     }
 
     InModuleScope AzCostTools {
@@ -105,10 +122,14 @@ Describe Get-ResourceGroupCost {
         Context 'Multi-day consumption spanning both the current and previous billing period' {
 
             BeforeAll {
+                function Get-AzContext {}
                 function Get-AzConsumptionUsageDetail {}
                 function Get-Sparkline {}
                 function Write-Sparkline {}
 
+                Mock Get-AzContext {
+                    @{ Subscription = @{ Name = 'SomeSubscription'; Id = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' } }
+                }
                 Mock Write-Progress {}
                 Mock Get-Sparkline
                 Mock Write-SparkLine
@@ -165,10 +186,14 @@ Describe Get-ResourceGroupCost {
         Context 'InstanceId does not contain a resolvable resource group segment' {
 
             BeforeAll {
+                function Get-AzContext {}
                 function Get-AzConsumptionUsageDetail {}
                 function Get-Sparkline {}
                 function Write-Sparkline {}
 
+                Mock Get-AzContext {
+                    @{ Subscription = @{ Name = 'SomeSubscription'; Id = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' } }
+                }
                 Mock Write-Progress {}
                 Mock Get-Sparkline
                 Mock Write-SparkLine
@@ -197,10 +222,14 @@ Describe Get-ResourceGroupCost {
         Context 'No consumption data for the previous billing period' {
 
             BeforeAll {
-                function Get-AzConsumptionUsageDetail ($BillingPeriodName) {}
+                function Get-AzContext {}
+                function Get-AzConsumptionUsageDetail ($BillingPeriodName, $ResourceGroup) {}
                 function Get-Sparkline {}
                 function Write-Sparkline {}
 
+                Mock Get-AzContext {
+                    @{ Subscription = @{ Name = 'SomeSubscription'; Id = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' } }
+                }
                 Mock Write-Progress {}
                 Mock Get-Sparkline
                 Mock Write-SparkLine
@@ -235,8 +264,12 @@ Describe Get-ResourceGroupCost {
         Context 'When retrieving cost data throws an error' {
 
             BeforeAll {
+                function Get-AzContext {}
                 function Get-AzConsumptionUsageDetail {}
 
+                Mock Get-AzContext {
+                    @{ Subscription = @{ Name = 'SomeSubscription'; Id = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' } }
+                }
                 Mock Write-Progress {}
                 Mock Write-Error {}
 
@@ -266,11 +299,15 @@ Describe Get-ResourceGroupCost {
         Context 'When the Az consumption cmdlet fails with a BadRequest for an Enterprise Agreement subscription' {
 
             BeforeAll {
+                function Get-AzContext {}
                 function Get-AzConsumptionUsageDetail {}
                 function Get-EaConsumptionUsageDetail {}
                 function Get-Sparkline {}
                 function Write-Sparkline {}
 
+                Mock Get-AzContext {
+                    @{ Subscription = @{ Name = 'SomeSubscription'; Id = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' } }
+                }
                 Mock Write-Progress {}
                 Mock Get-Sparkline
                 Mock Write-SparkLine
@@ -327,6 +364,64 @@ Describe Get-ResourceGroupCost {
                 $Result.Cost | Should -Be 10
                 $Result.PrevCost | Should -Be 15
                 Should -Invoke Get-EaConsumptionUsageDetail -Times 1 -Exactly
+            }
+
+            It 'Auto-discovers resource group names from the InstanceId returned by the EA fallback when -ResourceGroupName is not specified' {
+                Mock Get-AzConsumptionUsageDetail { throw [System.Exception]::new('Response status code does not indicate success: 400 (BadRequest).') }
+
+                $Result = Get-ResourceGroupCost
+
+                $Result | Should -Not -BeNullOrEmpty
+                $Result.ResourceGroupName | Should -Be 'SomeResourceGroup'
+                $Result.Cost | Should -Be 15
+            }
+        }
+
+        Context 'One or more subscriptions specified via -SubscriptionName' {
+
+            BeforeAll {
+                function Get-AzContext {}
+                function Set-AzContext ($Subscription) {}
+                function Get-AzConsumptionUsageDetail ($ResourceGroup) {}
+
+                Mock Get-AzContext {
+                    @{ Subscription = @{ Name = 'OriginalSubscription'; Id = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' } }
+                }
+                Mock Set-AzContext {}
+                Mock Write-Progress {}
+
+                Mock Get-AzConsumptionUsageDetail {
+                    @(
+                        [pscustomobject]@{
+                            InstanceId = '/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SomeResourceGroup/providers/Microsoft.Storage/storageAccounts/SomeAccount'
+                            Currency   = 'EUR'
+                            PretaxCost = 10
+                            UsageStart = (Get-Date '02/01/2024 00:00:00')
+                        }
+                    )
+                }
+            }
+
+            It 'Switches the Az context to each specified subscription and returns an object per subscription' {
+                $Result = Get-ResourceGroupCost -ResourceGroupName 'SomeResourceGroup' -SubscriptionName 'SubA', 'SubB'
+
+                $Result.Count | Should -Be 2
+                ($Result | Sort-Object SubscriptionName).SubscriptionName | Should -Be @('SubA', 'SubB')
+                Should -Invoke Set-AzContext -Times 1 -Exactly -ParameterFilter { $Subscription -eq 'SubA' }
+                Should -Invoke Set-AzContext -Times 1 -Exactly -ParameterFilter { $Subscription -eq 'SubB' }
+            }
+
+            It 'Restores the original Az context after querying every specified subscription' {
+                Get-ResourceGroupCost -ResourceGroupName 'SomeResourceGroup' -SubscriptionName 'SubA', 'SubB' | Out-Null
+
+                # One Set-AzContext call per requested subscription, plus one more to restore the original context.
+                Should -Invoke Set-AzContext -Times 3 -Exactly
+            }
+
+            It 'Does not switch the Az context when -SubscriptionName is not specified' {
+                Get-ResourceGroupCost -ResourceGroupName 'SomeResourceGroup' | Out-Null
+
+                Should -Invoke Set-AzContext -Times 0 -Exactly
             }
         }
     }

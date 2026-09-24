@@ -73,6 +73,7 @@ Describe Get-EaConsumptionUsageDetail {
                 $Result = Get-EaConsumptionUsageDetail -SubscriptionId 'SomeSubscriptionId' -BillingPeriodName '202401'
 
                 $Result.SubscriptionGuid | Should -Be 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                $Result.InstanceId | Should -Be '/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SomeGroup/providers/Microsoft.Storage/storageAccounts/SomeAccount'
                 $Result.InstanceName | Should -Be 'SomeAccount'
                 $Result.AccountName | Should -Be 'SomeBillingAccount'
                 $Result.DepartmentName | Should -Be 'SomeBillingProfile'
@@ -91,6 +92,7 @@ Describe Get-EaConsumptionUsageDetail {
                             [pscustomobject]@{
                                 properties = @{
                                     subscriptionId         = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                                    instanceId              = '/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SomeGroup/providers/Microsoft.Storage/storageAccounts/SomeAccount'
                                     resourceName            = 'SomeAccount'
                                     accountName             = 'SomeAccountName'
                                     invoiceSection          = 'SomeInvoiceSection'
@@ -125,6 +127,7 @@ Describe Get-EaConsumptionUsageDetail {
                 $Result = Get-EaConsumptionUsageDetail -SubscriptionId 'SomeSubscriptionId' -SubscriptionKind 'Legacy' -BillingPeriodName '202401'
 
                 $Result.SubscriptionGuid | Should -Be 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                $Result.InstanceId | Should -Be '/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SomeGroup/providers/Microsoft.Storage/storageAccounts/SomeAccount'
                 $Result.InstanceName | Should -Be 'SomeAccount'
                 $Result.AccountName | Should -Be 'SomeAccountName'
                 $Result.DepartmentName | Should -Be 'SomeInvoiceSection'

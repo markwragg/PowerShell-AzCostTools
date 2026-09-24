@@ -63,6 +63,7 @@ function Get-EaConsumptionUsageDetail {
 
         $convertedDetail = [pscustomobject]@{
             SubscriptionGuid  = if ($isLegacy) { $detail.properties.subscriptionId } else { $detail.properties.subscriptionGuid }
+            InstanceId        = if ($isLegacy) { $detail.properties.instanceId } else { $detail.properties.instanceName }
             InstanceName      = if ($isLegacy) { $detail.properties.resourceName } else { ($detail.properties.instanceName -split '/')[-1] }
             AccountName       = if ($isLegacy) { $detail.properties.accountName } else { $detail.properties.billingAccountName }
             DepartmentName    = if ($isLegacy) { $detail.properties.invoiceSection } else { $detail.properties.billingProfileName }
