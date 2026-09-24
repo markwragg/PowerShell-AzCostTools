@@ -106,6 +106,12 @@ Task 'CombineFunctionsAndStage' -Depends 'Clean' {
 
     # Copy existing manifest
     Copy-Item -Path $env:BHPSModuleManifest -Destination $StagingModulePath -Recurse
+
+    # Copy format (and any type) .ps1xml files referenced by the manifest's
+    # FormatsToProcess/TypesToProcess -- these load relative to the module file,
+    # so they must sit alongside the combined .psm1/.psd1 in Staging.
+    Get-ChildItem -Path "$env:BHModulePath\*.ps1xml" -ErrorAction 'SilentlyContinue' |
+        Copy-Item -Destination $StagingModulePath
 }
 
 
