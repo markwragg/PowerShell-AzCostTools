@@ -25,9 +25,7 @@ function Get-EaConsumptionUsageDetail {
 
     $isLegacy = $SubscriptionKind -eq 'Legacy'
 
-    $resource = 'https://management.azure.com'
-    $context = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext
-    $accessToken = [Microsoft.Azure.Commands.Common.Authentication.AzureSession]::Instance.AuthenticationFactory.Authenticate($context.Account, $context.Environment, $context.Tenant.Id.ToString(), $null, [Microsoft.Azure.Commands.Common.Authentication.ShowDialog]::Never, $null, $resource).AccessToken
+    $accessToken = Get-EaAccessToken
 
     $dateFilter = $StartDate.Date.ToString('yyyy-MM-dd')
     $endDateFilter = $EndDate.Date.ToString('yyyy-MM-dd')

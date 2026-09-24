@@ -115,5 +115,18 @@ Describe Get-CostAdvisor {
             $Result = Get-CostAdvisor -Impact Low,Medium
             @($Result).count | Should -Be 0
         }
+
+        It 'Should switch Az context when the current context does not match the requested subscription' {
+            # The pre-existing context's Subscription must resolve a non-null .Name for the code's
+            # comparison to be able to evaluate true and trigger a Set-AzContext call.
+            Mock Get-AzContext {
+                @{
+                    Subscription = @{ Name = 'SomeExistingSubscription' }
+                }
+            }
+
+            Get-CostAdvisor -SubscriptionName 'SomeOtherSubscription' | Out-Null
+            Should -Invoke Set-AzContext -Times 1 -Exactly
+        }
     }
 }

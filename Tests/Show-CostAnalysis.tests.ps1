@@ -389,5 +389,56 @@ Describe Show-CostAnalysis {
             $Cost | Show-CostAnalysis
             Should -Invoke Write-Host
         }
+
+        It 'Colours the total cost Green when spend is within budget, and pads the billing period label when there are many daily cost entries' {
+
+            Mock Test-PSparklinesModule {
+                $true
+            }
+
+            $DailyCost = 1..8 | ForEach-Object {
+                @{
+                    Date = (Get-Date "01/0$_/2024 00:00:00")
+                    Cost = 10
+                }
+            }
+
+            $Cost = [PSCustomObject]@{
+                PSTypeName                 = 'Subscription.Cost'
+                Name                       = 'SomeSubscription'
+                BillingPeriod              = '202401'
+                Currency                   = 'EUR'
+                Cost                       = '80'
+                DailyCost_SparkLine        = '▃▇▇▇▇▃▄▇███▁'
+                DailyCost_Min              = '10'
+                DailyCost_Max              = '10'
+                DailyCost_Avg              = '10'
+                MostExpensive_Date         = (Get-Date '01/01/2024 00:00:00')
+                LeastExpensive_Date        = (Get-Date '01/02/2024 00:00:00')
+                DailyCost                  = $DailyCost
+                PrevDailyCost              = $DailyCost
+                PrevBillingPeriod          = '202312'
+                PrevCost                   = 80
+                CostPerService             = @(
+                    @{
+                        Service = 'Microsoft.Network'
+                        Cost    = 80
+                    }
+                )
+                MostExpensiveService       = 'Microsoft.Network'
+                MostExpensiveService_Cost  = 80
+                LeastExpensiveService      = 'Microsoft.Network'
+                LeastExpensiveService_Cost = 80
+                ActiveBudgets              = @(
+                    @{
+                        BudgetAmount    = 100000
+                        BudgetTimeGrain = 'Monthly'
+                    }
+                )
+            }
+
+            $Cost | Show-CostAnalysis -ComparePrevious
+            Should -Invoke Write-Host
+        }
     }
 }

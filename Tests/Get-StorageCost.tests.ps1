@@ -114,4 +114,167 @@ Describe Get-StorageCost {
             $Result.Cost | Should -Be 30
         }
     }
+
+    InModuleScope AzCostTools {
+
+        Context 'Multi-day consumption spanning both the current and previous billing period' {
+
+            BeforeAll {
+                function Get-AzConsumptionUsageDetail {}
+                function Get-Sparkline {}
+                function Write-Sparkline {}
+
+                Mock Write-Progress {}
+                Mock Get-Sparkline
+                Mock Write-SparkLine
+
+                Mock Get-AzConsumptionUsageDetail {
+                    @(
+                        [pscustomobject]@{
+                            AccountName      = 'SomeAccount'
+                            InstanceName     = 'SomeAccount'
+                            InstanceId       = '/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SomeResourceGroup/providers/Microsoft.Storage/storageAccounts/SomeAccount'
+                            ConsumedService  = 'Microsoft.Storage'
+                            Currency         = 'EUR'
+                            SubscriptionName = 'SomeSubscription'
+                            PretaxCost       = 10
+                            UsageStart       = (Get-Date '02/01/2024 00:00:00')
+                        },
+                        [pscustomobject]@{
+                            AccountName      = 'SomeAccount'
+                            InstanceName     = 'SomeAccount'
+                            InstanceId       = '/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SomeResourceGroup/providers/Microsoft.Storage/storageAccounts/SomeAccount'
+                            ConsumedService  = 'Microsoft.Storage'
+                            Currency         = 'EUR'
+                            SubscriptionName = 'SomeSubscription'
+                            PretaxCost       = 20
+                            UsageStart       = (Get-Date '03/01/2024 00:00:00')
+                        }
+                    )
+                }
+            }
+
+            It 'Derives the ResourceGroupName from the InstanceId and generates Sparklines for the current and previous period' {
+                $Result = Get-StorageCost -AccountName 'SomeAccount' -ComparePrevious
+                $Result.ResourceGroupName | Should -Be 'SomeResourceGroup'
+                $Result.Cost | Should -Be 30
+
+                Should -Invoke Get-Sparkline -Times 2 -Exactly
+            }
+
+            It 'Excludes the Sparkline property and uses the NoSparkLines type when -ExcludeSparklines is used' {
+                $Result = Get-StorageCost -AccountName 'SomeAccount' -ExcludeSparklines
+                $Result.PSObject.Properties.Name | Should -Not -Contain 'DailyCost_SparkLine'
+                $Result.PSTypeNames | Should -Contain 'Storage.CostNoSparkLines'
+            }
+
+            It 'Excludes the previous Sparkline property and uses the ComparePrevNoSparklines type when -ExcludeSparklines and -ComparePrevious are used together' {
+                $Result = Get-StorageCost -AccountName 'SomeAccount' -ExcludeSparklines -ComparePrevious
+                $Result.PSObject.Properties.Name | Should -Not -Contain 'PrevDailyCost_SparkLine'
+                $Result.PSTypeNames | Should -Contain 'Storage.Cost.ComparePrevNoSparklines'
+            }
+        }
+
+        Context 'InstanceId does not contain a resolvable resource group segment' {
+
+            BeforeAll {
+                function Get-AzConsumptionUsageDetail {}
+                function Get-Sparkline {}
+                function Write-Sparkline {}
+
+                Mock Write-Progress {}
+                Mock Get-Sparkline
+                Mock Write-SparkLine
+
+                Mock Get-AzConsumptionUsageDetail {
+                    @(
+                        [pscustomobject]@{
+                            AccountName      = 'SomeAccount'
+                            InstanceName     = 'SomeAccount'
+                            InstanceId       = '/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+                            ConsumedService  = 'Microsoft.Storage'
+                            Currency         = 'EUR'
+                            SubscriptionName = 'SomeSubscription'
+                            PretaxCost       = 10
+                            UsageStart       = (Get-Date -Year 2024 -Month 1 -Day 15)
+                        }
+                    )
+                }
+            }
+
+            It 'Sets ResourceGroupName to null when the InstanceId has fewer than 4 path segments' {
+                $Result = Get-StorageCost -AccountName 'SomeAccount'
+                $Result.ResourceGroupName | Should -BeNullOrEmpty
+            }
+        }
+
+        Context 'No consumption data for the previous billing period' {
+
+            BeforeAll {
+                function Get-AzConsumptionUsageDetail ($BillingPeriodName) {}
+                function Get-Sparkline {}
+                function Write-Sparkline {}
+
+                Mock Write-Progress {}
+                Mock Get-Sparkline
+                Mock Write-SparkLine
+
+                Mock Get-AzConsumptionUsageDetail {
+                    if ($BillingPeriodName -eq '202401') {
+                        @(
+                            [pscustomobject]@{
+                                AccountName      = 'SomeAccount'
+                                InstanceName     = 'SomeAccount'
+                                ConsumedService  = 'Microsoft.Storage'
+                                Currency         = 'EUR'
+                                SubscriptionName = 'SomeSubscription'
+                                PretaxCost       = 10
+                                UsageStart       = (Get-Date -Year 2024 -Month 1 -Day 15)
+                            }
+                        )
+                    }
+                    else {
+                        @()
+                    }
+                }
+            }
+
+            It 'Sets PrevCost and CostChange_Pct to null when the account has no consumption in the previous period' {
+                $Result = Get-StorageCost -AccountName 'SomeAccount' -BillingMonth '01/2024' -ComparePrevious
+                $Result.PrevCost | Should -Be 0
+                $Result.CostChange_Pct | Should -Be ''
+            }
+        }
+
+        Context 'When retrieving cost data throws an error' {
+
+            BeforeAll {
+                function Get-AzConsumptionUsageDetail {}
+
+                Mock Write-Progress {}
+                Mock Write-Error {}
+
+                Mock Get-AzConsumptionUsageDetail {
+                    @(
+                        [pscustomobject]@{
+                            AccountName      = 'SomeAccount'
+                            InstanceName     = 'SomeAccount'
+                            ConsumedService  = 'Microsoft.Storage'
+                            Currency         = 'EUR'
+                            SubscriptionName = 'SomeSubscription'
+                            PretaxCost       = 10
+                            UsageStart       = (Get-Date -Year 2024 -Month 1 -Day 15)
+                        }
+                    )
+                }
+
+                Mock Get-DailyCost { throw 'Simulated failure' }
+            }
+
+            It 'Writes a non-terminating error and does not propagate the exception' {
+                { Get-StorageCost -AccountName 'SomeAccount' } | Should -Not -Throw
+                Should -Invoke Write-Error -Times 1 -Exactly
+            }
+        }
+    }
 }

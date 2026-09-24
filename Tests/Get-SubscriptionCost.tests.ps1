@@ -157,4 +157,175 @@ Describe Get-SubscriptionCost {
             $Result.Cost | Should -Be 30
         }
     }
+
+    InModuleScope AzCostTools {
+
+        Context 'Multi-day consumption spanning both the current and previous billing period' {
+
+            BeforeAll {
+                function Get-AzContext {}
+                function Get-AzSubscription {}
+                function Set-AzContext {}
+                function Get-AzConsumptionUsageDetail {}
+                function Get-AzConsumptionBudget {}
+                function Get-Sparkline {}
+                function Write-Sparkline {}
+
+                Mock Get-AzContext {
+                    @{ Subscription = @{ Id = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' } }
+                }
+                Mock Set-AzContext {}
+                Mock Write-Progress {}
+                Mock Get-Sparkline
+                Mock Write-SparkLine
+                Mock Get-AzConsumptionBudget {}
+
+                Mock Get-AzConsumptionUsageDetail {
+                    @(
+                        [pscustomobject]@{
+                            ConsumedService = 'Microsoft.Compute'
+                            Currency        = 'EUR'
+                            PretaxCost      = 10
+                            UsageStart      = (Get-Date '02/01/2024 00:00:00')
+                        },
+                        [pscustomobject]@{
+                            ConsumedService = 'Microsoft.Compute'
+                            Currency        = 'EUR'
+                            PretaxCost      = 20
+                            UsageStart      = (Get-Date '03/01/2024 00:00:00')
+                        }
+                    )
+                }
+            }
+
+            It 'Generates Sparklines for the current and previous period when both span multiple days' {
+                Get-SubscriptionCost -SubscriptionName 'SomeSubscription' -ComparePrevious | Out-Null
+                Should -Invoke Get-Sparkline -Times 2 -Exactly
+            }
+        }
+
+        Context 'When the Az consumption cmdlet fails with a BadRequest for an Enterprise Agreement subscription' {
+
+            BeforeAll {
+                function Get-AzContext {}
+                function Get-AzSubscription {}
+                function Set-AzContext {}
+                function Get-AzConsumptionUsageDetail {}
+                function Get-AzConsumptionBudget {}
+                function Get-EaConsumptionUsageDetail {}
+
+                Mock Get-AzContext {
+                    @{ Subscription = @{ Id = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' } }
+                }
+                Mock Set-AzContext {}
+                Mock Write-Progress {}
+                Mock Get-AzConsumptionBudget {}
+
+                Mock Get-EaConsumptionUsageDetail {
+                    @(
+                        [pscustomobject]@{
+                            ConsumedService = 'Microsoft.Compute'
+                            Currency        = 'EUR'
+                            PretaxCost      = 15
+                            UsageStart      = (Get-Date '02/01/2024 00:00:00')
+                        }
+                    )
+                }
+            }
+
+            It 'Falls back to Get-EaConsumptionUsageDetail for the current billing period' {
+                Mock Get-AzConsumptionUsageDetail { throw [System.Exception]::new('Response status code does not indicate success: 400 (BadRequest).') }
+
+                $Result = Get-SubscriptionCost -SubscriptionName 'SomeSubscription'
+
+                $Result.Cost | Should -Be 15
+                Should -Invoke Get-EaConsumptionUsageDetail -Times 1 -Exactly
+            }
+
+            It 'Falls back to Get-EaConsumptionUsageDetail for the previous billing period when only the previous-period call fails' {
+                $script:CallCount = 0
+
+                Mock Get-AzConsumptionUsageDetail {
+                    $script:CallCount++
+                    if ($script:CallCount -eq 1) {
+                        @(
+                            [pscustomobject]@{
+                                ConsumedService = 'Microsoft.Compute'
+                                Currency        = 'EUR'
+                                PretaxCost      = 10
+                                UsageStart      = (Get-Date '02/01/2024 00:00:00')
+                            }
+                        )
+                    }
+                    else {
+                        throw [System.Exception]::new('Response status code does not indicate success: 400 (BadRequest).')
+                    }
+                }
+
+                $Result = Get-SubscriptionCost -SubscriptionName 'SomeSubscription' -ComparePrevious
+
+                $Result.Cost | Should -Be 10
+                $Result.PrevCost | Should -Be 15
+                Should -Invoke Get-EaConsumptionUsageDetail -Times 1 -Exactly
+            }
+        }
+
+        Context 'Error handling' {
+
+            BeforeAll {
+                function Get-AzContext {}
+                function Get-AzSubscription {}
+                function Set-AzContext ($Subscription) {}
+                function Get-AzConsumptionUsageDetail {}
+                function Get-AzConsumptionBudget {}
+
+                Mock Get-AzContext {
+                    @{ Subscription = @{ Id = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' } }
+                }
+                Mock Write-Progress {}
+                Mock Write-Error {}
+                Mock Get-AzConsumptionBudget {}
+
+                Mock Get-AzConsumptionUsageDetail {
+                    @(
+                        [pscustomobject]@{
+                            ConsumedService = 'Microsoft.Compute'
+                            Currency        = 'EUR'
+                            PretaxCost      = 10
+                            UsageStart      = (Get-Date '02/01/2024 00:00:00')
+                        }
+                    )
+                }
+            }
+
+            It 'Writes a non-terminating error and continues when Set-AzContext fails for a subscription' {
+                # Only fail the first (explicit context switch) call -- the unconditional restore in the
+                # function's `finally` block also calls Set-AzContext, and that call must keep succeeding
+                # or the exception it would raise escapes uncaught, which is not what this test exercises.
+                $script:SetContextCallCount = 0
+                Mock Set-AzContext {
+                    $script:SetContextCallCount++
+                    if ($script:SetContextCallCount -eq 1) { throw 'Simulated context switch failure' }
+                }
+
+                { Get-SubscriptionCost -SubscriptionName 'SomeSubscription' } | Should -Not -Throw
+                Should -Invoke Write-Error -Times 1 -Exactly
+            }
+
+            It 'Writes a non-terminating error and continues when calculating cost data fails' {
+                Mock Set-AzContext {}
+                Mock Get-DailyCost { throw 'Simulated cost calculation failure' }
+
+                { Get-SubscriptionCost -SubscriptionName 'SomeSubscription' } | Should -Not -Throw
+                Should -Invoke Write-Error -Times 1 -Exactly
+            }
+
+            It 'Restores the previous Az context and re-throws when retrieving subscriptions fails' {
+                Mock Get-AzSubscription { throw 'Simulated subscription lookup failure' }
+
+                { Get-SubscriptionCost } | Should -Throw
+                Should -Invoke Set-AzContext -Times 1 -Exactly
+            }
+        }
+    }
 }
