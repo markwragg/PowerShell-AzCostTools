@@ -113,3 +113,67 @@ If you used `-ComparePrevious` when executing `Get-SubscriptionCost` you can als
 $Cost | Show-CostAnalysis -ComparePrevious
 ```
 ![Show-CostAnalysis generates charts and tables for a set of returned cost data and shows charts for the previous cost data](https://github.com/markwragg/PowerShell-AzCostTools/blob/main/Media/Show-CostAnalysis-ComparePrev.png)
+
+### Saving and reloading cost data
+
+Retrieving cost data from Azure can take a few minutes to run, especially across multiple subscriptions or months. Rather than re-querying Azure every time you want to analyse the same data, you can save it to disk with `Export-AzCostData` and reload it later with `Import-AzCostData`:
+
+```powershell
+Get-SubscriptionCost -ComparePrevious -PreviousMonths 5 -OutVariable Cost
+$Cost | Export-AzCostData -Path C:\Cost\SubscriptionCost.json
+```
+
+> If `-Path` is a directory rather than a file, a timestamped file (`AzCostData_<timestamp>.json`) is created within it.
+
+The saved data can then be reloaded at any time, without needing to be connected to Azure, and piped directly into `Show-CostAnalysis` or anything else that expects the output of `Get-SubscriptionCost`/`Get-StorageCost`/`Get-CostAdvisor`:
+
+```powershell
+Import-AzCostData -Path C:\Cost\SubscriptionCost.json | Show-CostAnalysis -ComparePrevious
+```
+
+> `-Path` can also point to a directory, in which case every `.json` file within it is imported and returned together — useful if you've saved separate exports over time and want to combine them for a longer-running comparison.
+
+### Loading cost data from a Storage Account export
+
+Azure Cost Management can be configured to routinely write "Actual Cost" CSV exports to a Storage Account. This is done in the Azure Portal under **Cost Management + Billing > Cost Management > Exports**, where you can create a scheduled export and select a Storage Account and container for it to write to.
+
+Once configured, `Import-AzCostExport` can read the exported cost data for a given billing month directly from that container -- avoiding the Consumption API being queried live at all:
+
+```powershell
+Import-AzCostExport -StorageAccountName 'mycostexports' -ResourceGroupName 'rg-cost' -ContainerName 'costexports' -BillingMonth 01/2024 -PreviousMonths 3
+```
+
+This requires the `Az.Storage` module to be installed:
+
+```powershell
+Install-Module Az.Storage
+```
+
+The result is returned in the same shape as `Get-SubscriptionCost`, so it can be piped to `Show-CostAnalysis` or `Export-AzCostData` in exactly the same way.
+
+> The CSV column mapping is based on the standard "Actual Cost" export schema. If your export uses a Microsoft Customer Agreement/Enterprise Agreement schema variant with different column names, please raise an issue with a sample of the column headers so the mapping can be extended.
+
+### Managing Budgets
+
+Rather than a fixed budget figure that you have to remember to update manually, `Set-SubscriptionBudget` lets you keep a subscription's budget in step with its actual recent spend, by recalculating it from cost history via `Get-SubscriptionCost`.
+
+To update the budget for every subscription in your current context to the average of its previous 3 billing months' cost (the default), execute:
+
+```powershell
+Set-SubscriptionBudget
+```
+
+> As with other cmdlets in this module, `-WhatIf` is supported so you can preview the change before it's made, e.g `Set-SubscriptionBudget -WhatIf`.
+
+To base the new budget on a different number of months, and add a percentage buffer on top of the calculated average (e.g. to leave some headroom), execute:
+
+```powershell
+Set-SubscriptionBudget -SubscriptionName 'AdventureWorks Cycles' -Months 6 -BufferPercent 10
+```
+
+Other parameters available for `Set-SubscriptionBudget` include:
+
+* `-BudgetName` — Target a specific budget, for subscriptions that have more than one.
+* `-MinimumAmount` — Prevents the calculated budget from ever being set below this value.
+* `-CreateIfMissing` — Creates a new Monthly budget if the subscription doesn't already have one, instead of skipping it.
+* `-PassThru` — Returns an object describing the budget change made (or that would be made, with `-WhatIf`) for each subscription.

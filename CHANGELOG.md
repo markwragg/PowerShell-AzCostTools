@@ -1,5 +1,11 @@
 # Change Log
 
+## [Unreleased]
+
+* Implemented `Export-AzCostData` and `Import-AzCostData` to save cost data returned by `Get-SubscriptionCost`/`Get-StorageCost`/`Get-CostAdvisor` to disk and reload it later for analysis/comparison, without needing to re-query Azure.
+* Implemented `Import-AzCostExport` to load Azure Cost Management "Actual Cost" scheduled export data directly from a Storage Account container, returned in the same shape as `Get-SubscriptionCost`.
+* Implemented `Get-ResourceGroupCost` to retrieve Azure cost data for one or more Resource Groups and compare to the previous month.
+
 ## [0.0.5] - 2024-09-10
 
 * Fix: Updated the retrieval of Enterprise Agreement costs to return the `costInBillingCurrency` property (previously it was returning `CostInUSD` so was likely inaccurate for subscriptions billed in other currencies). Thanks [@Sebastianbuus](https://github.com/Sebastianbuus)!

@@ -172,50 +172,7 @@ function Get-SubscriptionCost {
                                 }
                             }
                     
-                            $Currency = ($Consumption | Select-Object -First 1).Currency
-                            $Cost = ($Consumption | Measure-Object -Property PretaxCost -Sum).Sum
-
-                            $DailyCost = Get-DailyCost -Consumption $Consumption
-                            $DailyCostCalc = $DailyCost.Cost | Measure-Object -Maximum -Minimum -Average -Sum
-                            $CostPerService = Get-ServiceCost -Consumption $Consumption
-                            $Budgets = Get-AzConsumptionBudget -ErrorAction SilentlyContinue
-
-                            $ActiveBudgets = foreach ($Budget in $Budgets) {
-
-                                if ($BillingDate -ge $Budget.TimePeriod.StartDate -and $Budget.TimePeriod.EndDate -ge $BillingDate) {
-                                    [pscustomobject]@{
-                                        BudgetAmount    = $Budget.Amount
-                                        BudgetTimeGrain = $Budget.TimeGrain
-                                    }
-                                }
-                            }
-
-                            if (Test-PSparklinesModule) {
-                                $CostSparkLine = if ($DailyCost.Count -gt 1) {
-                                    $CostSparkLine = Get-Sparkline $DailyCost.Cost -NumLines $SparkLineSize | Write-Sparkline
-                                }
-                            }
-
-                            $CostObject = [ordered]@{
-                                PSTypeName                 = 'Subscription.Cost'
-                                Name                       = $Name
-                                BillingPeriod              = $BillingPeriod
-                                Currency                   = $Currency
-                                Cost                       = [math]::Round($Cost, 2)
-                                DailyCost_SparkLine        = ($CostSparkLine -join "`n")
-                                DailyCost_Min              = [math]::Round(($DailyCostCalc).Minimum, 2)
-                                DailyCost_Max              = [math]::Round(($DailyCostCalc).Maximum, 2)
-                                DailyCost_Avg              = [math]::Round(($DailyCostCalc).Average, 2)
-                                MostExpensive_Date         = ($DailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Date
-                                LeastExpensive_Date        = ($DailyCost | Sort-Object Cost | Select-Object -First 1).Date
-                                DailyCost                  = $DailyCost
-                                CostPerService             = $CostPerService
-                                MostExpensiveService       = ($CostPerService | Sort-Object Cost -Descending | Select-Object -First 1).Service
-                                MostExpensiveService_Cost  = [math]::Round(($CostPerService | Sort-Object Cost -Descending | Select-Object -First 1).Cost, 2)
-                                LeastExpensiveService      = ($CostPerService | Sort-Object Cost | Select-Object -First 1).Service
-                                LeastExpensiveService_Cost = [math]::Round(($CostPerService | Sort-Object Cost | Select-Object -First 1).Cost, 2)
-                                ActiveBudgets              = $ActiveBudgets
-                            }
+                            $CostObject = New-CostSummaryObject -Name $Name -BillingDate $BillingDate -Consumption $Consumption -SparkLineSize $SparkLineSize
 
                             if ($ComparePrevious) {
 
@@ -241,9 +198,9 @@ function Get-SubscriptionCost {
                                 $PrevDailyCostCalc = $PrevDailyCost.Cost | Measure-Object -Maximum -Minimum -Average -Sum        
                                 $PrevCostPerService = Get-ServiceCost -Consumption $PrevConsumption
 
-                                $CostChange = $Cost - $PrevCost
+                                $CostChange = $CostObject.Cost - $PrevCost
                                 $ChangePct = $CostChange / $PrevCost
-                                $DailyCostChange = Get-DailyCostChange -DailyCost $DailyCost -PrevDailyCost $PrevDailyCost -ComparePreviousOffset $ComparePreviousOffset
+                                $DailyCostChange = Get-DailyCostChange -DailyCost $CostObject.DailyCost -PrevDailyCost $PrevDailyCost -ComparePreviousOffset $ComparePreviousOffset
 
                                 if (Test-PSparklinesModule) {
                                     $PrevCostSparkLine = if ($PrevDailyCost.Count -gt 1) {
@@ -258,8 +215,8 @@ function Get-SubscriptionCost {
                                     PrevDailyCost_Min              = [math]::Round(($PrevDailyCostCalc).Minimum, 2)
                                     PrevDailyCost_Max              = [math]::Round(($PrevDailyCostCalc).Maximum, 2)
                                     PrevDailyCost_Avg              = [math]::Round(($PrevDailyCostCalc).Average, 2)
-                                    PrevMostExpensiveDate          = ($DailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Date
-                                    PrevLeastExpensiveDate         = ($DailyCost | Sort-Object Cost | Select-Object -First 1).Date
+                                    PrevMostExpensiveDate          = ($CostObject.DailyCost | Sort-Object Cost -Descending | Select-Object -First 1).Date
+                                    PrevLeastExpensiveDate         = ($CostObject.DailyCost | Sort-Object Cost | Select-Object -First 1).Date
                                     PrevDailyCost                  = $PrevDailyCost
                                     PrevCostPerService             = $PrevCostPerService
                                     PrevMostExpensiveService       = ($PrevCostPerService | Sort-Object Cost -Descending | Select-Object -First 1).Service

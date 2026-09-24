@@ -69,7 +69,7 @@ FormatsToProcess = @('Subscription.Cost.Format.ps1xml','Subscription.Cost.Compar
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Get-CostAdvisor','Get-StorageCost','Get-SubscriptionCost','Show-CostAnalysis')
+FunctionsToExport = @('Export-AzCostData','Get-CostAdvisor','Get-ResourceGroupCost','Get-StorageCost','Get-SubscriptionCost','Import-AzCostData','Import-AzCostExport','Set-SubscriptionBudget','Show-CostAnalysis')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
