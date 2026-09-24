@@ -8,7 +8,7 @@ Retrieves the Azure costs for one or more billing months for one or more subscri
 ```
 Get-SubscriptionCost [[-SubscriptionName] <String[]>] [[-BillingMonth] <DateTime>] [[-PreviousMonths] <Int32>]
  [[-SparkLineSize] <Int32>] [-ComparePrevious] [[-ComparePreviousOffset] <Int32>] [-EaSubscription]
- [[-EaSubscriptionKind] <String>] [-Raw] [<CommonParameters>]
+ [[-EaSubscriptionKind] <String>] [-Raw] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -213,6 +213,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{Fill ProgressAction Description}}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

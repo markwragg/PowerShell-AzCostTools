@@ -6,7 +6,8 @@ Retrieves Azure cost advisor recommendations for one or more subscriptions.
 ## SYNTAX
 
 ```
-Get-CostAdvisor [[-SubscriptionName] <String[]>] [[-Impact] <String[]>] [-Raw] [<CommonParameters>]
+Get-CostAdvisor [[-SubscriptionName] <String[]>] [[-Impact] <String[]>] [-Raw]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -85,6 +86,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{Fill ProgressAction Description}}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

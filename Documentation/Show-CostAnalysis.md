@@ -7,7 +7,7 @@ Performs analysis of the data returned by Get-SubscriptionCost and generates cha
 
 ```
 Show-CostAnalysis [[-Cost] <Object>] [-ComparePrevious] [[-ConvertToCurrency] <String>]
- [[-SparkLineSize] <Int32>] [<CommonParameters>]
+ [[-SparkLineSize] <Int32>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -96,6 +96,21 @@ Aliases:
 Required: False
 Position: 3
 Default value: 3
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{Fill ProgressAction Description}}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
