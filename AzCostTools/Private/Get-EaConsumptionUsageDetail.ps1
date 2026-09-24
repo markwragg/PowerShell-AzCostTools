@@ -29,10 +29,7 @@ function Get-EaConsumptionUsageDetail {
     $context = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile.DefaultContext
     $accessToken = [Microsoft.Azure.Commands.Common.Authentication.AzureSession]::Instance.AuthenticationFactory.Authenticate($context.Account, $context.Environment, $context.Tenant.Id.ToString(), $null, [Microsoft.Azure.Commands.Common.Authentication.ShowDialog]::Never, $null, $resource).AccessToken
 
-
-    $Date = $StartDate.AddDays($Day)
-
-    $dateFilter = $Date.Date.ToString('yyyy-MM-dd')
+    $dateFilter = $StartDate.Date.ToString('yyyy-MM-dd')
     $endDateFilter = $EndDate.Date.ToString('yyyy-MM-dd')
     $uriPath = "https://management.azure.com/subscriptions/$($SubscriptionId)/providers/Microsoft.Consumption/usageDetails"
 

@@ -11,7 +11,7 @@
 
     # Common modules
     BuildHelpers     = '2.0.1'
-    Pester           = '5.5.0'
+    Pester           = '6.1.0'
     PlatyPS          = '0.12.0'
     psake            = '4.9.0'
     PSDeploy         = '1.0.1'
