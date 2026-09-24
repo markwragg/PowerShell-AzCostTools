@@ -57,7 +57,8 @@ Describe Export-AzCostData {
             $Cost | Export-AzCostData -Path $Path
 
             # Assert
-            $Content = @(Get-Content $Path -Raw | ConvertFrom-Json)
+            $Parsed = Get-Content $Path -Raw | ConvertFrom-Json
+            $Content = @($Parsed)
             $Content.Count | Should -Be 2
         }
     }

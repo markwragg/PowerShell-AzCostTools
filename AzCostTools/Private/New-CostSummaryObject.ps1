@@ -43,12 +43,12 @@ function New-CostSummaryObject {
     $Currency = ($Consumption | Select-Object -First 1).Currency
     $Cost = ($Consumption | Measure-Object -Property PretaxCost -Sum).Sum
 
-    $DailyCost = Get-DailyCost -Consumption $Consumption
+    $DailyCost = @(Get-DailyCost -Consumption $Consumption)
     $DailyCostCalc = $DailyCost.Cost | Measure-Object -Maximum -Minimum -Average -Sum
-    $CostPerService = Get-ServiceCost -Consumption $Consumption
+    $CostPerService = @(Get-ServiceCost -Consumption $Consumption)
     $Budgets = Get-AzConsumptionBudget -ErrorAction SilentlyContinue
 
-    $ActiveBudgets = foreach ($Budget in $Budgets) {
+    $ActiveBudgets = @(foreach ($Budget in $Budgets) {
 
         if ($BillingDate -ge $Budget.TimePeriod.StartDate -and $Budget.TimePeriod.EndDate -ge $BillingDate) {
             [pscustomobject]@{
@@ -56,7 +56,7 @@ function New-CostSummaryObject {
                 BudgetTimeGrain = $Budget.TimeGrain
             }
         }
-    }
+    })
 
     if (Test-PSparklinesModule) {
         $CostSparkLine = if ($DailyCost.Count -gt 1) {
