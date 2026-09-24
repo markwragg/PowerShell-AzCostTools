@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## !Deploy
 
 * Implemented `Get-ResourceGroupCost` to retrieve Azure cost data for one or more Resource Groups and compare to the previous month.
 * Implemented `Export-CostData` and `Import-CostData` to save cost data returned by `Get-SubscriptionCost`/`Get-ResourceGroupCost`/`Get-StorageCost`/`Get-CostAdvisor` to disk and reload it later for analysis/comparison, without needing to re-query Azure.
