@@ -20,6 +20,7 @@ function New-CostSummaryObject {
     .PARAMETER SparkLineSize
         The row height of sparklines to generate (requires PSparklines module). Default: 1.
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Builds and returns an in-memory object only; no system state is changed.')]
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]

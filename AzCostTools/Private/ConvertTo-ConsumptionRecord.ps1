@@ -20,7 +20,7 @@ function ConvertTo-ConsumptionRecord {
         $Row
     )
     process {
-        function Get-RowValue ($Names) {
+        function Get-RowValue ($Row, $Names) {
             foreach ($ColumnName in $Names) {
                 if ($Row.PSObject.Properties.Name -contains $ColumnName -and $Row.$ColumnName) {
                     return $Row.$ColumnName
@@ -28,24 +28,24 @@ function ConvertTo-ConsumptionRecord {
             }
         }
 
-        $UsageStart = Get-RowValue 'Date', 'UsageDateTime', 'UsageStart'
-        $PreTaxCost = Get-RowValue 'CostInBillingCurrency', 'Cost', 'PreTaxCost'
-        $UsageQuantity = Get-RowValue 'Quantity', 'UsageQuantity'
+        $UsageStart = Get-RowValue $Row 'Date', 'UsageDateTime', 'UsageStart'
+        $PreTaxCost = Get-RowValue $Row 'CostInBillingCurrency', 'Cost', 'PreTaxCost'
+        $UsageQuantity = Get-RowValue $Row 'Quantity', 'UsageQuantity'
 
         [pscustomobject]@{
-            SubscriptionGuid  = Get-RowValue 'SubscriptionId', 'SubscriptionGuid'
-            SubscriptionName  = Get-RowValue 'SubscriptionName'
-            InstanceName      = Get-RowValue 'ResourceId', 'ResourceName', 'InstanceId'
-            ResourceGroupName = Get-RowValue 'ResourceGroup', 'ResourceGroupName'
+            SubscriptionGuid  = Get-RowValue $Row 'SubscriptionId', 'SubscriptionGuid'
+            SubscriptionName  = Get-RowValue $Row 'SubscriptionName'
+            InstanceName      = Get-RowValue $Row 'ResourceId', 'ResourceName', 'InstanceId'
+            ResourceGroupName = Get-RowValue $Row 'ResourceGroup', 'ResourceGroupName'
             UsageStart        = if ($UsageStart) { [datetime]$UsageStart }
-            ConsumedService   = Get-RowValue 'ConsumedService'
-            Product           = Get-RowValue 'ProductName', 'Product'
-            Currency          = Get-RowValue 'BillingCurrencyCode', 'BillingCurrency', 'Currency'
+            ConsumedService   = Get-RowValue $Row 'ConsumedService'
+            Product           = Get-RowValue $Row 'ProductName', 'Product'
+            Currency          = Get-RowValue $Row 'BillingCurrencyCode', 'BillingCurrency', 'Currency'
             MeterDetails      = @{
-                MeterName        = Get-RowValue 'MeterName'
-                MeterCategory    = Get-RowValue 'MeterCategory'
-                MeterSubCategory = Get-RowValue 'MeterSubCategory'
-                Unit             = Get-RowValue 'UnitOfMeasure'
+                MeterName        = Get-RowValue $Row 'MeterName'
+                MeterCategory    = Get-RowValue $Row 'MeterCategory'
+                MeterSubCategory = Get-RowValue $Row 'MeterSubCategory'
+                Unit             = Get-RowValue $Row 'UnitOfMeasure'
             }
             UsageQuantity     = if ($UsageQuantity) { [decimal]$UsageQuantity } else { 0 }
             PreTaxCost        = if ($PreTaxCost) { [decimal]$PreTaxCost } else { 0 }
