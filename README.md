@@ -1,6 +1,10 @@
 # PowerShell-AzCostTools
 
-[![Build Status](https://dev.azure.com/markwragg/GitHub/_apis/build/status/markwragg.PowerShell-AzCostTools?branchName=main)](https://dev.azure.com/markwragg/GitHub/_build/latest?definitionId=11&branchName=main) ![coverage](https://img.shields.io/badge/coverage-95%25-brightgreen.svg)
+[![Build Status](https://dev.azure.com/markwragg/GitHub/_apis/build/status/markwragg.PowerShell-AzCostTools?branchName=main)](https://dev.azure.com/markwragg/GitHub/_build/latest?definitionId=11&branchName=main)
+![coverage](https://img.shields.io/badge/coverage-95%25-brightgreen.svg)
+[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/azcosttools?label=PS%20Gallery)](https://www.powershellgallery.com/packages/azcosttools)
+[![PowerShell Gallery Downloads](https://img.shields.io/powershellgallery/dt/azcosttools?color=D3D3D3)](https://www.powershellgallery.com/packages/azcosttools)
+
 
 A PowerShell module for cmdlets related to Azure cost analysis.
 
@@ -98,7 +102,7 @@ If more than one subscription is in the cost data, the cmdlet will end with a to
 ![Show-CostAnalysis generates charts and tables for a set of returned cost data](https://github.com/markwragg/PowerShell-AzCostTools/blob/main/Media/Show-CostAnalysis.gif)
 
 With `Show-CostAnalysis` you can also customise the size of the charts returned by specifying `-SparkLineSize`. The default is 3.
-You can also specify `-ConvertToCurrency` with a 3 letter currency code if you'd like the cost values returned to be converted to a different currency. 
+You can also specify `-ConvertToCurrency` with a 3 letter currency code if you'd like the cost values returned to be converted to a different currency.
 Sometimes Azure costs are billed in a currency that is not your own and it may be more informative to view them in your local currency. For example:
 
 ```powershell
